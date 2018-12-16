@@ -1,0 +1,9 @@
+{
+	"title":"Welcome to Storm",
+	"featured_img":false,
+	"brief":"A blog engine that is really integrated to developer workflow: `Write in Text Editor -> Git Commit -> Git Push.`",
+	"tags":["developer","client","website","programmer"],
+	"author":"Izwan Robotys",
+	"published_at":"2018-12-02 08:00:00",
+	"status":"published"
+}
