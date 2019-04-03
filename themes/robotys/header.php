@@ -134,7 +134,7 @@
 
 <div class="menu">
 
-	<img src="<?= $config->logo ?>" style="width: 50px; margin-bottom: -10px;"/>
+	<img src="/<?= $config->logo ?>" style="width: 50px; margin-bottom: -10px;"/>
 	<h1><a href="/"><?= $config->name;?></a></h1>
 	<p><?= $config->social_description?></p>
 	
