@@ -1,0 +1,9 @@
+{
+	"title":"Use Different SSH key For Specific Git Repo",
+	"featured_img":"git-ssh-key.png",
+	"brief":"There are an easy solution to use different ssh key for different git repo. We can just specify in the git config which key file we want it to use for the current git repo we are in.",
+	"tags":["web design", "git", "ssh", "bitbucket", "programmer"],
+	"author":"Izwan Robotys",
+	"published_at":"2019-04-30 08:00:00",
+	"status":"published"
+}
