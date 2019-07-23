@@ -1,0 +1,9 @@
+{
+	"title":"DIY Wordpress in DigitalOcean",
+	"featured_img":"",
+	"brief":"For a dev who hates to manage wordpress, somehow someway it will come back and bite you. So this is my checklist after successfully installed Wordpress to my liking in a new instance of DigitalOcean.",
+	"tags":["wordpress","digital ocean","vps","ubuntu","ubuntu 18.04"],
+	"author":"Izwan Robotys",
+	"published_at":"2019-07-23 08:00:00",
+	"status":"published"
+}
