@@ -44,3 +44,11 @@ Aaaaannnd after found VestaCP in the list, i think i gonna start trying it.
 Reason: nice UI and seems like ticking all the 12 checklist above.
 
 Lets go VestaCP!
+
+UPDATE (2019-07-23)
+
+Not using VestaCP anymore due to Need to purchase premium plugin for File Manager and FTP.
+
+So, right now back to rambo mode: SSH into ubuntu and install and config whatever i want.
+
+Stay tuned for checklist and pointers on that.
