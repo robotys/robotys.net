@@ -7,7 +7,9 @@ Call me Robotys, as thats my nick name from primary school. Long story with mult
 
 Programmer officially since 2008 specifically in web application. Developing web sites of all sorts. Consider myself as fullstack developer. Can do pretty abstract stuff like Web Design and Multimedia all the way down to coding front-end (HTML5/CSS3/JS) and back-end (PHP7) with or without framework (Jquery/CodeIgniter/Laravel).
 
-Currently employed as Senior IT Developer (Web App) at Xentral Methods Sdn Bhd. Managing web assets in form of digital book ecosystem for Malaysia and SEA region. Since 2013, which make it already 4 years!
+~~Currently employed as Senior IT Developer (Web App) at Xentral Methods Sdn Bhd. Managing web assets in form of digital book ecosystem for Malaysia and SEA region. Since 2013, which make it already 4 years!~~
+
+Career Update (2020-02-08): Still Sr IT Developer but now at MyParcel Asia Sdn Bhd. We are aggregator for local courier provider parcel [shipment services within Malaysia](https://myparcelasia.com) and also international. Right now main jobscope encompassing product management, web development, and lead tech for special project with national courier. Start from April 2018 until now.
 
 With that many years under my belt and various scale of project, I also take outside job mainly on consultation and also hands on for selected projects. Usually to help friends and friends of friends on their website needs.
 
