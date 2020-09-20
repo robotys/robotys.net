@@ -3,8 +3,8 @@
 $config = [];
 
 $config['name'] = 'Robotys.net';
-$config['logo'] = 'media/avatar.jpg';
-$config['description'] = 'Lead Dev at myparcelasia.com and consultant at notabisnes.net';
+$config['logo'] = 'media/robot-potrait-lines.png';
+$config['description'] = 'CTO at myparcelasia.com and editor in chief at notabisnes.net';
 $config['social_description'] = 'Personal blog touches on tech, web dev, content, marketing and business';
 $config['title'] = $config['name'].' - '.$config['description'];
 $config['theme'] = 'robotys';
