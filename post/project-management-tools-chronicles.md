@@ -30,15 +30,26 @@ Itu yang membuatkan saya cuba cari konsep lain untuk uruskan projek. Konsep yang
 
 Lain-lain idea tambahan:
 
-Idea #1: Ada view khas seperti To Do / Backlog list untuk setiap ahli pasukan. Jadi mereka hanya fokus pada kerja mereka sahaja semasa 'in the zone'. Tak daklah distracted dengan segala macam 'big picture' pada paparan Roadmap.
+`Idea #1`: Ada view khas seperti To Do / Backlog list untuk setiap ahli pasukan. Jadi mereka hanya fokus pada kerja mereka sahaja semasa 'in the zone'. Tak daklah distracted dengan segala macam 'big picture' pada paparan Roadmap.
 
-Idea #2: Ada sistem untuk uruskan 'kerja yang bukan roadmap' seperti hotfix (bug) atau incident (firefighting) sebagai satu task yang berasingan. Ini kerana daripada pengalaman memang selalu sangat benda-benda terkejut ni mengganggu timeline yang telah dirancang. Semua itu adalah perkara yang tidak boleh dielak maka kenapa ia tidak jelas pada paparan roadmap? Kemudian hari kita boleh overlay dot untuk hotfix atas timeline dan kita akan nampak bahawasanya lompong pada roadmap itu sebenarnya diisi dengan hotfix.
+`Idea #2`: Ada sistem untuk uruskan 'kerja yang bukan roadmap' seperti hotfix (bug) atau incident (firefighting) sebagai satu task yang berasingan. Ini kerana daripada pengalaman memang selalu sangat benda-benda terkejut ni mengganggu timeline yang telah dirancang. Semua itu adalah perkara yang tidak boleh dielak maka kenapa ia tidak jelas pada paparan roadmap? Kemudian hari kita boleh overlay dot untuk hotfix atas timeline dan kita akan nampak bahawasanya lompong pada roadmap itu sebenarnya diisi dengan hotfix.
 
-Idea #3: Sistem 'watch' yang akan alert mereka yang watch dengan update untuk roadmap atau task tersebut. Ini mudah untuk PM monitor progress kerja.
+`Idea #3`: Sistem 'watch' yang akan alert mereka yang watch dengan update untuk roadmap atau task tersebut. Ini mudah untuk PM monitor progress kerja.
 
-Idea #4: Fungsi 'Remind' yang membolehkan PM alert programmer pada roadmap atau task khusus. Ini akan buatkan programmer lebih alert dengan kerja-kerja yang pending.
+`Idea #4`: Fungsi 'Remind' yang membolehkan PM alert programmer pada roadmap atau task khusus. Ini akan buatkan programmer lebih alert dengan kerja-kerja yang pending.
 
-Idea #5: Kanban boleh di KIV. Ia nampak cantik tapi in reality tidak cukup 'condensed' untuk paparan laptop. Boleh ganti tukar dengan paparan To Do list yang compact tetapi fleksibel jika perlu maklumat yang lebih detail.
+`Idea #5`: Kanban boleh di KIV. Ia nampak cantik tapi in reality tidak cukup 'condensed' untuk paparan laptop. Boleh ganti tukar dengan paparan To Do list yang compact tetapi fleksibel jika perlu maklumat yang lebih detail.
+
+`Idea #6`: Status yang menunjukkan progress
+
+- backlog (ready and not due this week)
+- due (due this week)
+- in progress
+- kiv (will continue later)
+- done
+- canceled
+
+`Idea #7`: Perkenalkan konsep `Squeeze` yang akan berlaku apabila due date dah dekat atau deadline dah dilanggar. Maksudnya team akan stop buat lain dan rush siapkan banyak pending task dalam masa yang pendek. Nama squeeze tu sesuai sebab ia buat kita sedar yang itu adalah perkara yang kita tidak suka. Jadi manager dan team akan lebih ambil berat apabila due date dah lekat. Lesson learned.
 
 Idea bagus. Nak buatnya bila?
 
