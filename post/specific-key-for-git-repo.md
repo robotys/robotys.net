@@ -19,7 +19,7 @@ We can just specify in the git config which key file we want it to use for the c
 
 The command are as simple as: 
 
-`git config core.sshCommand "ssh -i ~/.ssh/id_rsa_example -F /dev/null"`
+	git config core.sshCommand "ssh -i ~/.ssh/id_rsa_example -F /dev/null"
 
 Tested in windows git-bash version 2.16.*
 

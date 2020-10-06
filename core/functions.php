@@ -49,19 +49,36 @@ function posts(){
 	}
 
 	// dd(is_page());
+	$jsons = glob('post/*.json');
 
+	// susun jsons according to published date
+	$files = [];
+	foreach($jsons as $i=>$file){
+		$filename = str_replace('post/', '/', $file);
+		// print_r($filename);
+		$post = json_decode(file_get_contents('./post/'.$filename), true);
+		$post_key = $post['published_at'].'-'.$i;
+		$files[$post_key] = $file;
+	}
+
+	krsort($files);
+	$files = array_values($files);
+
+	// dd($jsons);
 	// dd($page);
-	foreach(glob('post/*.json') as $i=>$file){
+	foreach($files as $i=>$file){
 		// has json = published post
 		// if(strpos($file, '.json') !== false AND $counter <= $config->total_post_shown_per_page){
 		$current_page = ceil($counter/$config->total_post_shown_per_page);
-		//  
-		if((is_single() AND $file == $post_key) 
+		
+		// dd($page);
+		if(
+			(is_single() AND $file == $post_key) 
 			OR ( (is_home() OR is_page()) AND $current_page == $page) 
 			OR is_search()
 		){
 			$filename = str_replace('post/', '/', $file);
-			
+			// print_r($filename);
 			$post = json_decode(file_get_contents('./post/'.$filename), true);
 			$html = $parsedown->parse(file_get_contents('./post/'.str_replace('.json', '.md', $filename)));
 			$html = substr( $html, strpos($html, "\n")+1 );
@@ -71,7 +88,6 @@ function posts(){
 			$post['permalink'] = $config->base_url.'/read/'.str_replace('.json', '', $file);
 			$post['published_at'] = date($config->date_format, strtotime($post['published_at']));
 			// dd($post);
-
 
 			if(is_search()){
 
@@ -94,13 +110,13 @@ function posts(){
 			}
 		}
 
-		// dd($posts);
 		
 		$counter++;
 		// }
 	}
 
 	krsort($posts);
+	// dd($posts);
 	// dd($posts);
 	return $posts;
 }

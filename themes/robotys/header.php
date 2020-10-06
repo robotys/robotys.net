@@ -148,6 +148,7 @@
 
 		.post{
 			margin-bottom: 90px;
+			line-height: 1.4em;
 		}
 
 		/*h1, h2, h3{
@@ -189,12 +190,13 @@
 		}
 
 		code{
-			color: #000;
+			color: #0F0;
+			background: #000;
 		}
 
 		pre{
 			max-width: 100%;
-			background: #444;
+			background: #000;
 			padding: 15px;
 			white-space: pre-wrap;
 			font-size: 0.9em;
