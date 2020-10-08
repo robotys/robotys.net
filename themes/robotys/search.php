@@ -22,9 +22,9 @@
 
 	<?php else: ?>
 	<div class="post">
-		<h1>No Result</h1>
+		<h1><a href="#">No Result</a></h1>
 		<div class="body">
-			<p>No Result found for search term '<?php echo $_GET['search']; ?>'</p>
+			<p>No Result found for search term '<code><?php echo $_GET['search']; ?></code>'</p>
 		</div>
 	</div>
 	<?php endif;?>

@@ -48,21 +48,28 @@ function posts(){
 		$is_page = true;
 	}
 
-	// dd(is_page());
-	$jsons = glob('post/*.json');
+	if(!$is_single AND !$is_page){
+		// dd(is_page());
+		$jsons = glob('post/*.json');
 
-	// susun jsons according to published date
-	$files = [];
-	foreach($jsons as $i=>$file){
-		$filename = str_replace('post/', '/', $file);
-		// print_r($filename);
-		$post = json_decode(file_get_contents('./post/'.$filename), true);
-		$post_key = $post['published_at'].'-'.$i;
-		$files[$post_key] = $file;
+		// susun jsons according to published date
+		$files = [];
+		foreach($jsons as $i=>$file){
+			$filename = str_replace('post/', '/', $file);
+			// print_r($filename);
+			$post = json_decode(file_get_contents('./post/'.$filename), true);
+			$post_key = $post['published_at'].'-'.$i;
+			$files[$post_key] = $file;
+		}
+		krsort($files);
+		$files = array_values($files);
+	}else{
+
+		// $filename = str_replace('post/', '/', $post_key);
+		$files[] = $post_key;
 	}
 
-	krsort($files);
-	$files = array_values($files);
+	// dd($files);
 
 	// dd($jsons);
 	// dd($page);
