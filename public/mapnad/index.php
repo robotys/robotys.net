@@ -17,10 +17,12 @@
 	<div class="card-body">	
 		<div class="form-group mb-3">
 			<label><small>Your Learning Outcome:</small></label>
-			<div class="input-group">
-				<input type="text" name="lo" class="form-control" value="Explain the key concepts of social change and human cultural">
-				<span class="btn btn-primary btn-submit">Submit</span>
-			</div>
+			<form method="post">
+				<div class="input-group">
+					<input type="text" name="lo" class="form-control" value="Explain the key concepts of social change and human cultural">
+					<input type="submit" class="btn btn-primary btn-submit" value="Submit">
+				</div>
+			</form>
 		</div>
 
 		<label><small>Domain:</small></label>
@@ -213,14 +215,20 @@ $(document).ready(function(){
 
 	// console.log(domain);
 
-	$('.btn-submit').on('click', function(){
+	$('form').submit(function(e){
+		e.preventDefault();
+
+
+
+		$('[name=domain]').val();
+
 		let val = $('[name=lo]').val();
 
 		if(val != '')
 		{
 			exp = val.split(' ');
 
-			res = [];
+			let res = [];
 
 			$.each(exp, function(i, str){
 				if(Object.keys(index).indexOf(str.toLowerCase()) != -1)
@@ -238,9 +246,10 @@ $(document).ready(function(){
 			});
 
 			$('[name=domain]').val(str.join(', '));
+			
+			console.log(res);
 		}
 
-		console.log(res);
 	});
 });
 
