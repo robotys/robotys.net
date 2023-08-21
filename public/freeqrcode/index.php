@@ -34,6 +34,16 @@
 			});
 		});
 	</script>
+
+	<!-- Google tag (gtag.js) -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-1CJP2KHHH7"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'G-1CJP2KHHH7');
+	</script>
 </head>
 <body>
 <div class="container vh-100 d-flex justify-content-center align-items-center">
