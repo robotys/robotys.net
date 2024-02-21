@@ -112,7 +112,7 @@
 				$('#selection').append(tr);
 
 				// get the price
-				$.post('/nameck/api', {'domain':idea}, function(ret){
+				$.get('/nameck/api', {domain:idea}, function(ret){
 					let res = JSON.parse(ret);
 					
 					let can = buy = null;
