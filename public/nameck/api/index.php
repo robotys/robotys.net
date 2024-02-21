@@ -1,12 +1,15 @@
 <?php
 
-	dd($_GET['domain']);
+	// dd($_GET['domain']);
 
 	$url = 'https://api.namecheap.com/xml.response?ApiUser=robotys&ApiKey=b4c9fde001124b768a946935f657d4c8&UserName=robotys&Command=namecheap.domains.check&ClientIp=192.168.1.109&DomainList='.$_GET['domain'];
 
 	$res = file_get_contents($url);
 
 	$xml = simplexml_load_string($res);
+
+	dd($xml);
+	
 	$check = ($xml->CommandResponse->DomainCheckResult);
 
 	$dom = (object)[
