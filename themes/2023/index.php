@@ -77,6 +77,13 @@
 			<a href="https://twitter.com/robotys">Baca content Bisnes dan Coding di Twitter &rarr;</a>
 			<a href="https://www.facebook.com/robotys">Baca content Bisnes di Facebook &rarr;</a>
 		</div>
+
+		<p>Projek:</p>
+
+		<div class="menu">
+			<a href="https://notabisnes.com">Nota Bisnes: Content Tentang Bisnes &rarr;</a>
+			<a href="/nameck">Nameck: Generate Domain Name Ideas &rarr;</a>
+		</div>
 	</div>
 </div>
 </body>
