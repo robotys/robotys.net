@@ -1,6 +1,6 @@
 <?php
 
-	dd($_GET);
+	dd($_GET['domain']);
 
 	$url = 'https://api.namecheap.com/xml.response?ApiUser=robotys&ApiKey=b4c9fde001124b768a946935f657d4c8&UserName=robotys&Command=namecheap.domains.check&ClientIp=192.168.1.109&DomainList='.$_GET['domain'];
 
