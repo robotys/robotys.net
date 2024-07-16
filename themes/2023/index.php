@@ -17,7 +17,7 @@
 		.container
 		{
 			width: 100%;
-			height: 100vh;
+			min-height: 100vh;
 			display: flex;
 			justify-content: center;
 			align-items: center;
@@ -26,13 +26,26 @@
 		.box
 		{
 			width: 100%;
-			max-width: 400px;
+			max-width: 900px;
 			padding: 30px;
 			background: #FFF;
 			border-radius: 6px;
 			border: 1px #ddd solid;
 			box-shadow: 0px 5px 5px rgba(0,0,100,0.3);
 			margin: 15px 15px;
+		}
+
+		.col
+		{
+			width: calc((100% - 40px)/2);
+			float: left;
+			box-sizing: border-box;
+			margin-right: 40px;
+		}
+
+		.col:last-child
+		{
+			margin-right: 0px;
 		}
 
 		.menu a{
@@ -42,6 +55,15 @@
 
 		a, a:visited{
 			color: #00F;
+		}
+
+		@media only screen and (max-width: 768px) {
+		  /* For mobile phones: */
+		  .col,
+		  [class*="col-"]
+		  {
+		    width: 100%;
+		  }
 		}
 	</style>
 	<!-- Google tag (gtag.js) -->
@@ -57,32 +79,52 @@
 <body>
 <div class="container">
 	<div class="box">
-		<img src="/assets/dp.jpeg" style="width: 100px; border-radius: 50%">
-		
-		<h1>Robotys.net</h1>
-		
-		<p>Robotys adalah persona online milik Izwan Wahab semenjak tahun 2000 lagi.</p> 
+		<div class="col">
+			<img src="/assets/dp.jpeg" style="width: 100px; border-radius: 50%">
+			
+			<h1>Robotys.net</h1>
+			
+			<p>Robotys adalah persona online Izwan Wahab sejak tahun 2000 lagi.</p>
 
-		<p>Telah menguasai 3 bidang kunci dunia internet: Programming, Copywriting dan Digital Marketing.</p>
+			<p>Aktif selama berbelas tahun dalam 3 bidang kunci dunia internet: Programming, Copywriting dan Digital Marketing.</p>
 
-		<p>Bekerja sebagai Chief Technology Officer di <a href="https://myparcelasia.com">MyParcel Asia SDN BHD</a>; memudahkan seller dan ecommerce menguruskan penghantaran barang kepada pelanggan melalui POSLaju, J&T, Ninjavan dan lain-lain.</p> 
+			<p>Bekerja sebagai Chief Technology Officer di <a href="https://myparcelasia.com">MyParcel Asia SDN BHD</a>; membantu seller dan ecommerce menguruskan penghantaran barang kepada pelanggan melalui POSLaju, J&T, Ninjavan dan lain-lain pada harga yang lebih murah.</p> 
 
-		<p>Dalam masa yang sama membantu usahawan dan anak muda dengan tulisan, consulting dan latihan sekitar topik sistem website, digital marketing, kewangan dan kerjaya.</p>
+			<p>Dalam masa yang sama membantu usahawan dan anak muda dengan tulisan, khidmat nasihat dan latihan hands on sekitar topik sistem website, digital marketing, kewangan dan kerjaya.</p>
 
-		<p>Kawan-kawan gelar 'Mr Simplifier'.</p>
-
-		<p>Choose your adventure:</p>
-
-		<div class="menu">
-			<a href="https://twitter.com/robotys">Baca content Bisnes dan Coding di Twitter &rarr;</a>
-			<a href="https://www.facebook.com/robotys">Baca content Bisnes di Facebook &rarr;</a>
+			<p>Kawan-kawan gelar 'Mr Simplifier' dek kerana mudahnya memahami perkara yang beliau kongsi.</p>
 		</div>
+		<div class="col">
+			<p>Choose your adventure:</p>
 
-		<p>Projek:</p>
+			<ul class="menu">
+				<li>
+					<a href="https://twitter.com/robotys">Baca content Bisnes dan Coding di Twitter &rarr;</a>
+				</li>
+				<li>
+					<a href="https://www.facebook.com/robotys">Baca content Bisnes di Facebook &rarr;</a>
+				</li>
+			</ul>
 
-		<div class="menu">
-			<a href="https://notabisnes.com">Nota Bisnes: Content Tentang Bisnes &rarr;</a>
-			<a href="/nameck">Nameck: Generate Domain Name Ideas &rarr;</a>
+			<p>Projek:</p>
+
+			<ul class="menu">
+				<li>
+					<a href="https://notabisnes.com"><strong>Nota Bisnes</strong>: Buku, eBook dan Panduan Video Tentang hal teknikal menjalankan bisnes &rarr;</a>
+				</li>
+				<li>
+					<a href="/nameck"><strong>Nameck</strong>: Generate Domain Name Ideas &rarr;</a>
+				</li>
+				<li>
+					<a href="/freeqrcode"><strong>Free QR Code</strong>: Generate QR Code secara percuma &rarr;</a>
+				</li>
+			</ul>
+
+			<p>Newsletter:</p>
+
+			<p>Jemput join newsletter mingguan sekitar topik buat duit, bisnes dan kerjaya. Lengkapkan maklumat dan tekan butang [SUBSCRIBE] &rarr;</p>
+
+			<?php include('subscribe_form.php');?>
 		</div>
 	</div>
 </div>
