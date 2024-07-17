@@ -10,8 +10,21 @@
 		body
 		{
 			font-family: Inter, sans-serif;
-			font-size: 14px;
-			background: #EEF;
+			font-size: 16px;
+			color: #444;
+			line-height: 1.4em;
+			background: rgba(240,245,256, 1);
+		}
+
+		a
+		{
+			text-decoration: none;
+			color: #0058BA;
+		}
+
+		a:hover
+		{
+			text-decoration: underline;
 		}
 
 		.container
@@ -28,10 +41,10 @@
 			width: 100%;
 			max-width: 900px;
 			padding: 30px;
-			background: #FFF;
+/*			background: #FFF;*/
 			border-radius: 6px;
-			border: 1px #ddd solid;
-			box-shadow: 0px 5px 5px rgba(0,0,100,0.3);
+/*			border: 1px #ddd solid;*/
+/*			box-shadow: 0px 5px 5px rgba(0,0,100,0.3);*/
 			margin: 15px 15px;
 		}
 
@@ -64,6 +77,16 @@
 		  {
 		    width: 100%;
 		  }
+
+		  body
+		  {
+		  	font-size: 20px;
+		  }
+
+		  .box
+		  {
+		  	padding: 5px;
+		  }
 		}
 	</style>
 	<!-- Google tag (gtag.js) -->
@@ -79,36 +102,30 @@
 <body>
 <div class="container">
 	<div class="box">
+		<img src="/assets/dp.jpeg" style="width: 100px; border-radius: 50%">
+		
+		<h1>Robotys.net</h1>
+
 		<div class="col">
-			<img src="/assets/dp.jpeg" style="width: 100px; border-radius: 50%">
 			
-			<h1>Robotys.net</h1>
-			
-			<p>Robotys adalah persona online Izwan Wahab sejak tahun 2000 lagi.</p>
+			<p>Robotys adalah persona online <u>Izwan Wahab</u> sejak tahun 2000 lagi.</p>
+
+			<p>Bekerja sebagai programmer di <a href="https://myparcelasia.com">myparcelasia.com</a>: membantu seller dan ecommerce menguruskan penghantaran barang kepada pelanggan melalui POSLaju, J&T, Ninjavan dan lain-lain pada harga yang lebih murah.</p> 
 
 			<p>Aktif selama berbelas tahun dalam 3 bidang kunci dunia internet: Programming, Copywriting dan Digital Marketing.</p>
 
-			<p>Bekerja sebagai Chief Technology Officer di <a href="https://myparcelasia.com">MyParcel Asia SDN BHD</a>; membantu seller dan ecommerce menguruskan penghantaran barang kepada pelanggan melalui POSLaju, J&T, Ninjavan dan lain-lain pada harga yang lebih murah.</p> 
 
-			<p>Dalam masa yang sama membantu usahawan dan anak muda dengan tulisan, khidmat nasihat dan latihan hands on sekitar topik sistem website, digital marketing, kewangan dan kerjaya.</p>
+			<p>Dalam masa yang sama membantu usahawan dan anak muda dengan tulisan, khidmat nasihat dan latihan hands on sekitar topik sistem website, digital marketing, kewangan dan kerjaya.</p> 
+
+			<p>Berkongsi penulisan di <a href="https://twitter.com/robotys">twitter @robotys</a> dan juga dalam newsletter tertutup "Nota Robotys". Yang subscribe ja yang akan dapat baca.</p>
 
 			<p>Kawan-kawan gelar 'Mr Simplifier' dek kerana mudahnya memahami perkara yang beliau kongsi.</p>
+
+			
 		</div>
 		<div class="col">
-			<p>Choose your adventure:</p>
-
-			<ul class="menu">
-				<li>
-					<a href="https://twitter.com/robotys">Baca content Bisnes dan Coding di Twitter &rarr;</a>
-				</li>
-				<li>
-					<a href="https://www.facebook.com/robotys">Baca content Bisnes di Facebook &rarr;</a>
-				</li>
-			</ul>
-
-			<p>Projek:</p>
-
-			<ul class="menu">
+			<p>Pautan:</p>
+			<ul class="menu" style="margin: 0; padding: 0px 15px;">
 				<li>
 					<a href="https://notabisnes.com"><strong>Nota Bisnes</strong>: Buku, eBook dan Panduan Video Tentang hal teknikal menjalankan bisnes &rarr;</a>
 				</li>
@@ -120,9 +137,7 @@
 				</li>
 			</ul>
 
-			<p>Newsletter:</p>
-
-			<p>Jemput join newsletter mingguan sekitar topik buat duit, bisnes dan kerjaya. Lengkapkan maklumat dan tekan butang [SUBSCRIBE] &rarr;</p>
+			<p>Jemput join <strong>Newsletter Nota Robotys</strong>&rarr;</p>
 
 			<?php include('subscribe_form.php');?>
 		</div>
