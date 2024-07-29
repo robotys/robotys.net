@@ -20,17 +20,20 @@
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 
+	<script src="/assets/qrcode.min.js"></script>
 	<script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
 	<script>
 		$(document).ready(function(){
 			$('.btn-submit').on('click', function(){
 				let msg = $('[name=link]').val();
 
-				url = 'https://chart.apis.google.com/chart?cht=qr&chs=300x300&chl='+msg+'&chld=H|0';
+				// url = 'https://chart.apis.google.com/chart?cht=qr&chs=300x300&chl='+msg+'&chld=H|0';
 
-				html = '<br/><img src="'+url+'" class="img-fluid" /> <br/><br/><small>(Right-click + save as to download)</small>';
+				new QRCode(document.getElementById("qrcode"), msg);
 
-				$('.qrcode').html(html);
+				// html = '<br/><img src="'+url+'" class="img-fluid" /> <br/><br/><small>(Right-click + save as to download)</small>';
+
+				// $('.qrcode').html(html);
 			});
 		});
 	</script>
@@ -60,8 +63,10 @@
 			<hr/>
 
 			<label>Your Free QR Code:</label>
-			<div class="qrcode text-center">
-				<div class="alert alert-info py-2 px-3">Please submit your link first.</div>
+			<div class="d-flex justify-content-center">
+				<div id="qrcode" style="width: 256px;">
+					<!-- <div class="alert alert-info py-2 px-3">Please submit your link first.</div> -->
+				</div>
 			</div>
 
 		</div>
