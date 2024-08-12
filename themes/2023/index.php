@@ -152,6 +152,9 @@
 					<a href="https://notabisnes.com"><strong>Nota Bisnes</strong>: Buku, eBook dan Panduan Video Tentang hal teknikal menjalankan bisnes &rarr;</a>
 				</li>
 				<li>
+					<a href="https://yescron.com"><strong>YesCron</strong>: Schedule your HTTP Get &rarr;</a>
+				</li>
+				<li>
 					<a href="/nameck"><strong>Nameck</strong>: Generate Domain Name Ideas &rarr;</a>
 				</li>
 				<li>
