@@ -49,6 +49,7 @@
 	</script>
 </head>
 <body>
+<!-- <textarea><?php echo(base64_encode(file_get_contents('../../../../Desktop/helpdesk-stock.png'))); ?></textarea> -->
 <div class="container vh-100 d-flex justify-content-center align-items-center">
 	<div class="col-md-4">
 		<div class="card card-body p-4">
