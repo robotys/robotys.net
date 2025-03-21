@@ -63,7 +63,7 @@
 			width: 100%;
 			display: flex;
 			height: 100%;
-			font-size: 2em;
+			font-size: 1.5em;
 			padding: 20px;
 			box-sizing: border-box;
 			border-radius: 20px;
