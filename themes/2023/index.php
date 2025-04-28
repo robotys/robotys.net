@@ -141,12 +141,11 @@
 		<div class="content">
 			<div class="left">
 				
-				<p>Robotys adalah persona online <u>Izwan Wahab</u> sejak tahun 2000 lagi.</p>
+				<p>Robotys adalah persona online <u>Izwan Wahab</u> sejak tahun 2000.</p>
 
-				<p>Bekerja sebagai programmer di <a href="https://myparcelasia.com">myparcelasia.com</a>: membantu seller dan ecommerce menguruskan penghantaran barang kepada pelanggan melalui POSLaju, J&T, Ninjavan dan lain-lain pada harga yang lebih murah.</p> 
+				<p>Bermula sebagai blogger suka-suka hingga kini bekerja sebagai programmer di <a href="https://myparcelasia.com">myparcelasia.com</a>: membantu seller dan ecommerce menguruskan penghantaran barang kepada pelanggan melalui POSLaju, J&T, Ninjavan dan lain-lain pada harga yang lebih murah.</p> 
 
 				<p>Aktif selama berbelas tahun dalam 3 bidang kunci dunia internet: Programming, Copywriting dan Digital Marketing.</p>
-
 
 				<p>Dalam masa yang sama membantu usahawan dan anak muda dengan tulisan, khidmat nasihat dan latihan hands on sekitar topik sistem website, digital marketing, kewangan dan kerjaya.</p> 
 
@@ -165,9 +164,6 @@
 					</li>
 					<li>
 						<a href="/nameck"><strong>Nameck</strong>: Generate Domain Name Ideas &rarr;</a>
-					</li>
-					<li>
-						<a href="/freeqrcode"><strong>Free QR Code</strong>: Generate QR Code secara percuma &rarr;</a>
 					</li>
 					<li>
 						<a href="/freeqrcode"><strong>Free QR Code</strong>: Generate QR Code secara percuma &rarr;</a>
