@@ -173,9 +173,9 @@
 					</li>
 				</ul>
 
-				<!-- <p>Jemput join <strong>Newsletter Nota Robotys</strong>&rarr;</p> -->
+				<p>Jemput join <strong>Newsletter Nota Robotys</strong>&rarr;</p>
 
-				<?php //include('subscribe_form.php');?>
+				<?php include('subscribe_form.php');?>
 			</div>
 		</div>
 	</div>
