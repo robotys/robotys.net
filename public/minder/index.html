@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minder | Aesthetic Mind Mapper</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --grid: #334155;
+            --accent: #818cf8;
+            --node-bg: rgba(255, 255, 255, 0.95);
+            --text: #1e293b;
+            --line: rgba(129, 140, 248, 0.4);
+        }
+
+        [data-theme="paper"] {
+            --bg: #fdfcfb;
+            --grid: #e5e7eb;
+            --accent: #444444;
+            --node-bg: #ffffff;
+            --text: #1a1a1a;
+            --line: #999999;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+        }
+
+        #canvas-container {
+            width: 100vw; height: 100vh;
+            overflow: auto;
+            background-image: radial-gradient(var(--grid) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        #canvas { width: 5000px; height: 5000px; position: relative; }
+
+        #svg-layer {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; pointer-events: none;
+        }
+
+        .node {
+            position: absolute; width: 220px; padding: 16px;
+            background: var(--node-bg); color: var(--text);
+            border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            cursor: move; z-index: 10; border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .node.selected { outline: 3px solid var(--accent); }
+
+        .node-content { 
+            font-size: 14px; outline: none; min-height: 20px; 
+            font-weight: 500; line-height: 1.4; padding: 4px;
+            border-radius: 4px;
+        }
+
+        /* Tool Buttons */
+        .node-tools {
+            position: absolute; top: -12px; right: 0;
+            display: none; gap: 5px;
+        }
+        .node:hover .node-tools, .node.selected .node-tools { display: flex; }
+
+        .tool-btn {
+            width: 24px; height: 24px; border-radius: 50%; border: none;
+            color: white; font-size: 12px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .btn-edit { background: var(--accent); }
+        .btn-del { background: #ef4444; }
+
+        /* Branch Points */
+        .branch-point {
+            position: absolute; width: 12px; height: 12px;
+            background: var(--accent); border: 2px solid white;
+            border-radius: 50%; opacity: 0; cursor: crosshair;
+        }
+        .node:hover .branch-point, .node.selected .branch-point { opacity: 1; }
+        .bp-t { top: -6px; left: 50%; transform: translateX(-50%); }
+        .bp-r { right: -6px; top: 50%; transform: translateY(-50%); }
+        .bp-b { bottom: -6px; left: 50%; transform: translateX(-50%); }
+        .bp-l { left: -6px; top: 50%; transform: translateY(-50%); }
+
+        .controls {
+            position: fixed; top: 20px; left: 20px;
+            display: flex; flex-direction: column; gap: 10px; z-index: 100;
+        }
+
+        .btn {
+            background: white; border: 1px solid #ddd; padding: 10px 15px;
+            border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .watermark {
+            position: fixed; bottom: 20px; right: 20px;
+            font-size: 14px; opacity: 0.5; font-weight: bold;
+            pointer-events: none; color: var(--text);
+        }
+    </style>
+</head>
+<body data-theme="midnight">
+
+    <div class="controls">
+        <button class="btn" id="btn-add">+ New Node (Space)</button>
+        <button class="btn" id="btn-theme">Toggle Theme</button>
+        <button class="btn" id="btn-undo">Undo (Ctrl+Z)</button>
+        <button class="btn" id="btn-export" style="background: #10b981; color: white; border: none;">Export PNG</button>
+    </div>
+
+    <div id="canvas-container">
+        <div id="canvas"><svg id="svg-layer"></svg></div>
+    </div>
+
+    <div class="watermark">minder.com</div>
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+    <script type="module">
+        let nodes = JSON.parse(localStorage.getItem('minder_v3')) || [];
+        let history = [];
+        let selectedId = null;
+        let isDragging = false;
+        let dragTarget = null;
+        
+        const canvas = document.getElementById('canvas');
+        const svgLayer = document.getElementById('svg-layer');
+
+        // --- Core Logic Functions ---
+
+        const render = () => {
+            document.querySelectorAll('.node').forEach(n => n.remove());
+            svgLayer.innerHTML = '';
+            
+            nodes.forEach(n => {
+                if (n.parentId) {
+                    const p = nodes.find(node => node.id === n.parentId);
+                    if (p) drawCurve(p, n);
+                }
+            });
+
+            nodes.forEach(node => {
+                const el = document.createElement('div');
+                el.className = `node ${selectedId === node.id ? 'selected' : ''}`;
+                el.style.left = node.x + 'px'; el.style.top = node.y + 'px';
+                
+                el.innerHTML = `
+                    <div class="node-tools">
+                        <button class="tool-btn btn-edit" title="Edit">✎</button>
+                        <button class="tool-btn btn-del" title="Delete">✕</button>
+                    </div>
+                    <div class="node-content" contenteditable="true" spellcheck="false">${node.text}</div>
+                    <div class="branch-point bp-t" data-dir="t"></div>
+                    <div class="branch-point bp-r" data-dir="r"></div>
+                    <div class="branch-point bp-b" data-dir="b"></div>
+                    <div class="branch-point bp-l" data-dir="l"></div>
+                `;
+
+                const content = el.querySelector('.node-content');
+
+                // Delete Logic
+                el.querySelector('.btn-del').onclick = (e) => {
+                    e.stopPropagation();
+                    pushHistory();
+                    nodes = nodes.filter(n => n.id !== node.id && n.parentId !== node.id);
+                    save();
+                };
+
+                // Edit Logic
+                el.querySelector('.btn-edit').onclick = (e) => {
+                    e.stopPropagation();
+                    content.focus();
+                };
+
+                // Interaction
+                el.onmousedown = (e) => {
+                    if (e.target.classList.contains('branch-point')) {
+                        const dir = e.target.dataset.dir;
+                        spawn(node.id, dir);
+                        return;
+                    }
+                    if (e.target === content || e.target.closest('.node-tools')) return;
+                    selectedId = node.id; isDragging = true; dragTarget = node; render();
+                };
+
+                content.oninput = (e) => { node.text = e.target.innerText; };
+                content.onblur = () => { pushHistory(); save(); };
+
+                canvas.appendChild(el);
+            });
+        };
+
+        const save = () => {
+            localStorage.setItem('minder_v3', JSON.stringify(nodes));
+            render();
+        };
+
+        const pushHistory = () => {
+            history.push(JSON.stringify(nodes));
+            if (history.length > 50) history.shift();
+        };
+
+        const addNode = (parentId = null, x, y, text = "New Thought") => {
+            pushHistory();
+            const id = 'n' + Date.now();
+            nodes.push({
+                id, parentId,
+                x: x || (window.innerWidth / 2 + document.getElementById('canvas-container').scrollLeft - 110),
+                y: y || (window.innerHeight / 2 + document.getElementById('canvas-container').scrollTop - 40),
+                text
+            });
+            selectedId = id;
+            save();
+        };
+
+        const spawn = (pid, dir) => {
+            const p = nodes.find(n => n.id === pid);
+            let x = p.x, y = p.y;
+            if(dir === 't') y -= 160; if(dir === 'b') y += 160;
+            if(dir === 'l') x -= 260; if(dir === 'r') x += 260;
+            addNode(pid, x, y, "...");
+        };
+
+        const drawCurve = (p1, p2) => {
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            const x1 = p1.x + 110, y1 = p1.y + 35, x2 = p2.x + 110, y2 = p2.y + 35;
+            const cp1x = x1 + (x2 - x1) / 2;
+            path.setAttribute("d", `M ${x1} ${y1} C ${cp1x} ${y1}, ${cp1x} ${y2}, ${x2} ${y2}`);
+            path.setAttribute("stroke", getComputedStyle(document.body).getPropertyValue('--line'));
+            path.setAttribute("stroke-width", "3");
+            path.setAttribute("fill", "none");
+            svgLayer.appendChild(path);
+        };
+
+        // --- Event Listeners ---
+
+        document.getElementById('btn-add').onclick = () => addNode();
+        
+        document.getElementById('btn-theme').onclick = () => {
+            const current = document.body.getAttribute('data-theme');
+            document.body.setAttribute('data-theme', current === 'midnight' ? 'paper' : 'midnight');
+            render();
+        };
+
+        document.getElementById('btn-undo').onclick = () => {
+            if (history.length > 0) {
+                nodes = JSON.parse(history.pop());
+                render();
+            }
+        };
+
+        document.getElementById('btn-export').onclick = () => {
+            document.querySelector('.controls').style.display = 'none';
+            html2canvas(canvas, { backgroundColor: getComputedStyle(document.body).getPropertyValue('--bg') }).then(cvs => {
+                const link = document.createElement('a');
+                link.download = 'minder-export.png'; link.href = cvs.toDataURL(); link.click();
+                document.querySelector('.controls').style.display = 'flex';
+            });
+        };
+
+        window.onmousemove = (e) => {
+            if (isDragging && dragTarget) {
+                dragTarget.x += e.movementX; dragTarget.y += e.movementY;
+                render();
+            }
+        };
+
+        window.onmouseup = () => { if(isDragging) save(); isDragging = false; };
+
+        window.onkeydown = (e) => {
+            if (e.code === 'Space' && (e.target === document.body || e.target.id === 'canvas-container')) { 
+                e.preventDefault(); addNode(); 
+            }
+            if (e.ctrlKey && e.key === 'z') document.getElementById('btn-undo').click();
+        };
+
+        // --- Init ---
+        if (nodes.length === 0) {
+            const title = prompt("Mind Map Title:", "My Presentation") || "My Presentation";
+            addNode(null, 2400, 2400, title);
+        } else {
+            render();
+        }
+    </script>
+</body>
+</html>

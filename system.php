@@ -27,18 +27,30 @@ class App
 		}
 		else
 		{
-			$filename = $route.'.php';
 
-			$viewPath = '../themes/'.env('themes').'/'.$filename;
+			$redirects = json_decode(file_get_contents('../redirects.json'));
 
-			if(is_file($viewPath))
+			if(property_exists($redirects, $route) !== FALSE)
 			{
-				require($viewPath);
-				exit();
+				$url = $redirects->$route;
+
+				header('Location: '.$url);
 			}
 			else
 			{
-				error404();
+				$filename = $route.'.php';
+
+				$viewPath = '../themes/'.env('themes').'/'.$filename;
+
+				if(is_file($viewPath))
+				{
+					require($viewPath);
+					exit();
+				}
+				else
+				{
+					error404();
+				}
 			}
 		}
 

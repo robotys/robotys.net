@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitter Repost Suggester</title>
+    <!-- Use Tailwind CSS for a modern, responsive design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .container {
+            max-width: 768px;
+        }
+        .tweet-card {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+        }
+        .btn-primary {
+            background-color: #1da1f2;
+            color: white;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #0d8dd2;
+        }
+        .btn-repost {
+            background-color: #1a91da;
+            color: white;
+            transition: background-color 0.2s;
+        }
+        .btn-repost:hover {
+            background-color: #156da3;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #1da1f2;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <!-- Main application container -->
+    <div class="container mx-auto p-8 bg-white shadow-xl rounded-2xl border border-gray-200">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800 text-center mb-6">
+            Twitter Repost Suggester
+        </h1>
+        <p class="text-center text-gray-600 mb-8">
+            Get suggestions for tweets to repost from your timeline.
+        </p>
+
+        <!-- Login and button section -->
+        <div id="login-section" class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+            <button id="loginBtn" class="w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-lg btn-primary shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105">
+                Login with Twitter
+            </button>
+        </div>
+
+        <!-- Status message area -->
+        <div id="statusMessage" class="text-center text-sm font-semibold text-gray-500 mb-4 h-6"></div>
+
+        <!-- Container for suggested tweets - initially hidden -->
+        <div id="tweetsContainer" class="space-y-6 hidden">
+            <!-- Tweets will be dynamically added here -->
+        </div>
+    </div>
+
+    <script>
+        // Get references to DOM elements
+        const loginBtn = document.getElementById('loginBtn');
+        const tweetsContainer = document.getElementById('tweetsContainer');
+        const statusMessage = document.getElementById('statusMessage');
+        const loginSection = document.getElementById('login-section');
+
+        // This is a simulated array of "old" tweets for the prototype.
+        const sampleTweets = [
+            {
+                text: "Just finished building a new prototype for an autonomous delivery robot. It’s amazing to see how far we've come with navigation AI!",
+                id: "1",
+                createdAt: "2023-01-15T10:00:00Z",
+                retweetCount: 42
+            },
+            {
+                text: "The latest advancements in machine learning are mind-blowing. The ability of models to learn from unstructured data opens up so many possibilities.",
+                id: "2",
+                createdAt: "2023-02-20T14:30:00Z",
+                retweetCount: 15
+            },
+            {
+                text: "What do you think is the biggest challenge for the future of humanoid robotics? Is it dexterity, battery life, or something else?",
+                id: "3",
+                createdAt: "2023-03-05T09:10:00Z",
+                retweetCount: 78
+            },
+            {
+                text: "Exploring the ethical implications of AI-powered art. As models become more creative, what does it mean for human artists?",
+                id: "4",
+                createdAt: "2023-04-10T16:45:00Z",
+                retweetCount: 29
+            },
+            {
+                text: "Had a great time at the Robotics Expo! So many innovative projects on display. The next generation of automation is going to be incredible.",
+                id: "5",
+                createdAt: "2023-05-22T11:20:00Z",
+                retweetCount: 51
+            },
+            {
+                text: "Thinking about the concept of 'digital consciousness'. Could a machine ever truly be self-aware?",
+                id: "6",
+                createdAt: "2023-06-08T13:00:00Z",
+                retweetCount: 33
+            }
+        ];
+
+        // Function to create a single tweet card element
+        function createTweetCard(tweet) {
+            const card = document.createElement('div');
+            card.className = "tweet-card p-4 rounded-xl shadow-md flex flex-col justify-between";
+            card.innerHTML = `
+                <p class="text-gray-800 text-lg leading-relaxed mb-4">${tweet.text}</p>
+                <div class="flex justify-between items-center text-gray-500 text-sm">
+                    <span>
+                        <span class="mr-2">&#x1F551;</span>${new Date(tweet.createdAt).toLocaleDateString()}
+                    </span>
+                    <button class="px-4 py-2 rounded-lg font-semibold btn-repost text-sm shadow-md transition-all duration-200 ease-in-out hover:shadow-lg">
+                        Repost
+                    </button>
+                </div>
+            `;
+
+            // Add event listener to the Repost button
+            const repostBtn = card.querySelector('.btn-repost');
+            repostBtn.addEventListener('click', () => {
+                const message = `Simulating repost of tweet: "${tweet.text}"`;
+                console.log(message);
+                // In a real app, this would trigger an API call to repost the tweet
+                showStatusMessage('Tweet has been prepared for repost!');
+            });
+
+            return card;
+        }
+
+        // Function to show a temporary status message
+        function showStatusMessage(message, isError = false) {
+            statusMessage.textContent = message;
+            statusMessage.className = `text-center text-sm font-semibold mb-4 h-6 ${isError ? 'text-red-500' : 'text-green-600'}`;
+            setTimeout(() => {
+                statusMessage.textContent = '';
+                statusMessage.className = 'text-center text-sm font-semibold text-gray-500 mb-4 h-6';
+            }, 3000);
+        }
+
+        // Main function to simulate fetching and displaying tweets
+        async function fetchTweetsAndDisplay() {
+            // Clear previous content and show a loading message
+            tweetsContainer.innerHTML = '';
+            showStatusMessage('Looking for old tweets...', false);
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = `<span class="loader"></span>`;
+
+            try {
+                // Simulate a network delay for the API call
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Randomly select 2-3 tweets from the sample data
+                const shuffled = [...sampleTweets].sort(() => 0.5 - Math.random());
+                const selectedTweets = shuffled.slice(0, Math.floor(Math.random() * 2) + 2); // Get 2 or 3 tweets
+
+                if (selectedTweets.length === 0) {
+                    showStatusMessage('No old tweets found to suggest.', true);
+                } else {
+                    selectedTweets.forEach(tweet => {
+                        const tweetCard = createTweetCard(tweet);
+                        tweetsContainer.appendChild(tweetCard);
+                    });
+                    showStatusMessage('Tweets suggested successfully!');
+                    tweetsContainer.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error("Error fetching or displaying tweets:", error);
+                showStatusMessage('An error occurred. Please try again.', true);
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Suggest Tweets';
+            }
+        }
+
+        // Function to handle the "Login with Twitter" flow
+        function handleTwitterLogin() {
+            // This is a placeholder for the real OAuth flow
+            // In a real app, this would redirect the user to Twitter's authorization page.
+            // After authorization, Twitter would redirect back to your app with a code,
+            // which your backend would use to get an access token.
+            showStatusMessage("Simulating Twitter login... Please wait.", false);
+            
+            // For the prototype, we'll immediately show the tweets
+            // after a short delay.
+            setTimeout(() => {
+                loginSection.innerHTML = `
+                    <input type="text" id="twitterHandle" value="@robotys" disabled class="flex-1 p-3 rounded-xl border border-gray-300 bg-gray-50 text-gray-700 text-center sm:text-left shadow-inner cursor-not-allowed">
+                    <button id="getTweetsBtn" class="w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-lg btn-primary shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105">
+                        Suggest Tweets
+                    </button>
+                `;
+                // Re-add the event listener to the new button
+                document.getElementById('getTweetsBtn').addEventListener('click', fetchTweetsAndDisplay);
+                showStatusMessage("Logged in successfully! Tap 'Suggest Tweets' to continue.");
+            }, 1500);
+        }
+
+        // Add event listener to the login button
+        loginBtn.addEventListener('click', handleTwitterLogin);
+
+    </script>
+
+</body>
+</html>
