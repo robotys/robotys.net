@@ -1,0 +1,17 @@
+{
+  "name": "AutoLog Vehicle Tracker",
+  "short_name": "AutoLog",
+  "description": "A mobile-first utility to track vehicle mileage and maintenance schedules.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/741/741407.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -171,6 +171,9 @@
 					<li>
 						<a href="/prompttt"><strong>PromptTT</strong>: Simple Prompter to help shoot TikTok video &rarr;</a>
 					</li>
+					<li>
+						<a href="/autolog"><strong>AutoLog</strong>: App to manage vehicle services record &rarr;</a>
+					</li>
 				</ul>
 
 				<p>Jemput join <strong>Newsletter Nota Robotys</strong>&rarr;</p>
