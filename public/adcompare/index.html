@@ -302,6 +302,7 @@
 
         function processData(rawData) {
             adsDataMap = {};
+
             const dateSet = new Set();
 
             if (!rawData) return;
@@ -320,7 +321,7 @@
                         daily: {} 
                     };
                 }
-
+                console.log(item);
                 const results = item.actions ? item.actions.reduce((acc, curr) => acc + parseInt(curr.value || 0), 0) : 0;
                 const spend = parseFloat(item.spend) || 0;
                 const cpr = results > 0 ? (spend / results) : 0;
