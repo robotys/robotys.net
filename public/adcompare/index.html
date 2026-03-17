@@ -79,6 +79,13 @@
             text-transform: none; 
             font-weight: normal;
         }
+
+        .app-id-input {
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -110,7 +117,14 @@
                     <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800" class="hero-img">
                     <div class="card-body p-5">
                         <h2 class="fw-bold mb-3">Ads Result Comparison</h2>
-                        <p class="text-muted mb-4">Log in to Meta to pull your real-time campaign insights and compare daily performance.</p>
+                        <p class="text-muted mb-4">Connect your own Meta App to pull real-time campaign insights.</p>
+                        
+                        <div class="text-start mb-3">
+                            <label for="meta-app-id" class="form-label small fw-bold">Meta App ID</label>
+                            <input type="text" id="meta-app-id" class="form-control app-id-input" placeholder="e.g. 2107584723372135">
+                            <div class="form-text mt-0">Enter your App ID from the Meta Developer Portal.</div>
+                        </div>
+
                         <button id="btn-login" class="btn btn-fb btn-lg w-100 shadow-sm" disabled>
                             <i class="bi bi-facebook me-2"></i><span id="login-text">Loading SDK...</span>
                         </button>
@@ -172,15 +186,14 @@
 
     <script>
         // --- CONFIGURATION ---
-        const APP_ID = '2107584723372135'; 
         const API_VERSION = 'v19.0';
         
         let userAccessToken = '';
         let adAccounts = [];
-        let fbInitialized = false;
+        let fbSdkLoaded = false;
         
         // Data State
-        let adsDataMap = {}; // adName -> { objective, audience, daily: { date -> {actionsMap, spend} } }
+        let adsDataMap = {}; 
         let sortedDates = [];
         let pinnedAds = new Set();
         let currentFilter = "";
@@ -190,13 +203,8 @@
 
         // --- FACEBOOK SDK INIT ---
         window.fbAsyncInit = function() {
-            FB.init({
-                appId      : APP_ID,
-                cookie     : true,
-                xfbml      : true,
-                version    : API_VERSION
-            });
-            fbInitialized = true;
+            // SDK is loaded but not yet initialized with an App ID
+            fbSdkLoaded = true;
             const loginBtn = document.getElementById('btn-login');
             loginBtn.disabled = false;
             document.getElementById('login-text').innerText = "Login with Facebook";
@@ -239,14 +247,35 @@
 
         // --- API & DATA LOGIC ---
         async function login() {
-            if (!fbInitialized) {
+            if (!fbSdkLoaded) {
                 alert("Facebook SDK is still loading.");
                 return;
             }
+
+            const customAppId = document.getElementById('meta-app-id').value.trim();
+            if (!customAppId) {
+                alert("Please enter a valid Meta App ID to proceed.");
+                return;
+            }
+
+            // Initialize the SDK with the user-provided App ID
+            try {
+                FB.init({
+                    appId      : customAppId,
+                    cookie     : true,
+                    xfbml      : true,
+                    version    : API_VERSION
+                });
+            } catch (e) {
+                console.error("FB Init error:", e);
+            }
+
             FB.login((response) => {
                 if (response.authResponse) {
                     userAccessToken = response.authResponse.accessToken;
                     initDashboard();
+                } else {
+                    console.log("User cancelled login or did not fully authorize.");
                 }
             }, { scope: 'ads_read,public_profile' });
         }
@@ -256,8 +285,10 @@
             try {
                 const response = await fetch(`https://graph.facebook.com/${API_VERSION}/me/adaccounts?fields=name,account_id,currency&access_token=${userAccessToken}`);
                 const data = await response.json();
-                adAccounts = data.data;
                 
+                if (data.error) throw new Error(data.error.message);
+                
+                adAccounts = data.data;
                 const selector = document.getElementById('account-selector');
                 selector.innerHTML = adAccounts.map(acc => `<option value="${acc.id}" data-currency="${acc.currency}">${acc.name}</option>`).join('');
                 
@@ -271,7 +302,7 @@
                 setDefaultDates();
             } catch (err) {
                 console.error(err);
-                alert("Failed to load ad accounts.");
+                alert("Error initializing dashboard: " + err.message);
             } finally {
                 toggleLoader(false);
             }
@@ -363,7 +394,6 @@
             });
             
             selector.innerHTML = optionsHtml;
-            // Restore selection if it still exists
             if (availableActionTypes.has(currentVal) || currentVal === 'all') {
                 selector.value = currentVal;
             } else {
@@ -392,7 +422,6 @@
             wrapper.classList.remove('d-none');
             document.getElementById('empty-state').classList.add('d-none');
 
-            // Header
             let headHtml = `<tr>
                 <th class="ad-name-col">
                     <div class="ad-name-header">
@@ -411,15 +440,16 @@
             document.getElementById('table-head').innerHTML = headHtml;
 
             const searchInput = document.getElementById('ad-search');
-            searchInput.addEventListener('input', handleSearchInput);
-            if (fromSearch) {
-                searchInput.focus();
-                const val = searchInput.value;
-                searchInput.value = '';
-                searchInput.value = val;
+            if (searchInput) {
+                searchInput.addEventListener('input', handleSearchInput);
+                if (fromSearch) {
+                    searchInput.focus();
+                    const val = searchInput.value;
+                    searchInput.value = '';
+                    searchInput.value = val;
+                }
             }
 
-            // Filter & Sort
             const allAdNames = Object.keys(adsDataMap)
                 .filter(name => name.toLowerCase().includes(currentFilter.toLowerCase()))
                 .sort((a, b) => {
@@ -428,7 +458,6 @@
                     return a.localeCompare(b);
                 });
 
-            // Body
             let bodyHtml = '';
             allAdNames.forEach(adName => {
                 const isPinned = pinnedAds.has(adName);
@@ -465,7 +494,6 @@
 
                     rangeRes += resCount;
                     rangeSpend += spend;
-
                     const cpr = resCount > 0 ? (spend / resCount) : 0;
 
                     bodyHtml += `
@@ -477,7 +505,6 @@
                         </td>`;
                 });
 
-                // Calculate Range Totals
                 const rangeAvgCpr = rangeRes > 0 ? rangeSpend / rangeRes : 0;
                 bodyHtml += `
                     <td class="text-center metric-cell total-col">
