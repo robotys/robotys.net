@@ -124,7 +124,7 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <div class="row g-3 align-items-end">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="form-label small fw-bold">1. Select Ad Account</label>
                             <select id="account-selector" class="form-select">
                                 <option value="">Loading accounts...</option>
@@ -138,9 +138,15 @@
                             <label class="form-label small fw-bold">3. To</label>
                             <input type="date" id="date-end" class="form-control">
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold">4. Result Metric</label>
+                            <select id="metric-selector" class="form-select">
+                                <option value="all">Total Actions (All)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
                             <button id="btn-fetch" class="btn btn-primary w-100 fw-bold">
-                                <i class="bi bi-graph-up me-2"></i>Compare Results
+                                <i class="bi bi-graph-up me-2"></i>Fetch Data
                             </button>
                         </div>
                     </div>
@@ -166,7 +172,7 @@
 
     <script>
         // --- CONFIGURATION ---
-        const APP_ID = '2107584723372135'; // Updated Meta App ID
+        const APP_ID = '2107584723372135'; 
         const API_VERSION = 'v19.0';
         
         let userAccessToken = '';
@@ -174,11 +180,13 @@
         let fbInitialized = false;
         
         // Data State
-        let adsDataMap = {}; // adName -> { objective, audience, daily: { date -> {res, cpr, spend} } }
+        let adsDataMap = {}; // adName -> { objective, audience, daily: { date -> {actionsMap, spend} } }
         let sortedDates = [];
         let pinnedAds = new Set();
         let currentFilter = "";
-        let accountCurrency = "USD"; // Default fallback
+        let accountCurrency = "USD";
+        let availableActionTypes = new Set();
+        let selectedMetric = "all";
 
         // --- FACEBOOK SDK INIT ---
         window.fbAsyncInit = function() {
@@ -222,6 +230,11 @@
                 style: 'currency',
                 currency: accountCurrency,
             }).format(amount);
+        };
+
+        const formatActionLabel = (type) => {
+            if (type === 'all') return 'Total Actions (All)';
+            return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
         };
 
         // --- API & DATA LOGIC ---
@@ -279,7 +292,6 @@
             try {
                 const fields = 'ad_name,objective,adset_name,date_start,actions,spend';
                 const timeRange = JSON.stringify({ "since": start, "until": end });
-                // Added limit=5000 to ensure we get all records for the requested date range
                 const url = `https://graph.facebook.com/${API_VERSION}/${accountId}/insights?level=ad&fields=${fields}&time_increment=1&time_range=${encodeURIComponent(timeRange)}&limit=5000&access_token=${userAccessToken}`;
                 
                 const response = await fetch(url);
@@ -291,6 +303,7 @@
                 }
 
                 processData(result.data);
+                updateMetricSelector();
                 renderTableUI();
             } catch (err) {
                 console.error("Fetch Error:", err);
@@ -302,8 +315,8 @@
 
         function processData(rawData) {
             adsDataMap = {};
-
             const dateSet = new Set();
+            availableActionTypes = new Set();
 
             if (!rawData) return;
 
@@ -321,15 +334,42 @@
                         daily: {} 
                     };
                 }
-                console.log(item);
-                const results = item.actions ? item.actions.reduce((acc, curr) => acc + parseInt(curr.value || 0), 0) : 0;
-                const spend = parseFloat(item.spend) || 0;
-                const cpr = results > 0 ? (spend / results) : 0;
 
-                adsDataMap[adName].daily[date] = { res: results, cpr: cpr, spend: spend };
+                const actionsMap = {};
+                if (item.actions) {
+                    item.actions.forEach(act => {
+                        actionsMap[act.action_type] = parseInt(act.value || 0);
+                        availableActionTypes.add(act.action_type);
+                    });
+                }
+
+                const spend = parseFloat(item.spend) || 0;
+
+                adsDataMap[adName].daily[date] = { actionsMap, spend };
             });
 
             sortedDates = Array.from(dateSet).sort();
+        }
+
+        function updateMetricSelector() {
+            const selector = document.getElementById('metric-selector');
+            const currentVal = selector.value;
+            
+            let optionsHtml = '<option value="all">Total Actions (All)</option>';
+            const sortedTypes = Array.from(availableActionTypes).sort();
+            
+            sortedTypes.forEach(type => {
+                optionsHtml += `<option value="${type}">${formatActionLabel(type)}</option>`;
+            });
+            
+            selector.innerHTML = optionsHtml;
+            // Restore selection if it still exists
+            if (availableActionTypes.has(currentVal) || currentVal === 'all') {
+                selector.value = currentVal;
+            } else {
+                selector.value = 'all';
+                selectedMetric = 'all';
+            }
         }
 
         function togglePin(adName) {
@@ -340,7 +380,7 @@
 
         function handleSearchInput(e) {
             currentFilter = e.target.value;
-            renderTableUI(true); // pass true to preserve focus if possible
+            renderTableUI(true); 
         }
 
         function renderTableUI(fromSearch = false) {
@@ -352,7 +392,7 @@
             wrapper.classList.remove('d-none');
             document.getElementById('empty-state').classList.add('d-none');
 
-            // Header - Columns "Objective" and "Audience" removed
+            // Header
             let headHtml = `<tr>
                 <th class="ad-name-col">
                     <div class="ad-name-header">
@@ -370,7 +410,6 @@
             headHtml += `<th class="text-center total-col">Total / Avg</th></tr>`;
             document.getElementById('table-head').innerHTML = headHtml;
 
-            // Re-attach search listener and restore focus
             const searchInput = document.getElementById('ad-search');
             searchInput.addEventListener('input', handleSearchInput);
             if (fromSearch) {
@@ -380,7 +419,7 @@
                 searchInput.value = val;
             }
 
-            // Sorting: Pinned first, then by Name
+            // Filter & Sort
             const allAdNames = Object.keys(adsDataMap)
                 .filter(name => name.toLowerCase().includes(currentFilter.toLowerCase()))
                 .sort((a, b) => {
@@ -394,10 +433,9 @@
             allAdNames.forEach(adName => {
                 const isPinned = pinnedAds.has(adName);
                 const adInfo = adsDataMap[adName];
-                let totalRes = 0;
-                let totalSpend = 0;
+                let rangeRes = 0;
+                let rangeSpend = 0;
 
-                // Sub-labels moved into the Ads Name column
                 bodyHtml += `<tr class="${isPinned ? 'pinned-row' : ''}">
                     <td class="ad-name-col fw-bold">
                         <div class="ad-row-content">
@@ -412,26 +450,40 @@
                     </td>`;
                 
                 sortedDates.forEach(date => {
-                    const data = adInfo.daily[date] || { res: '-', cpr: 0, spend: 0 };
-                    if (typeof data.res === 'number') totalRes += data.res;
-                    totalSpend += data.spend;
+                    const daily = adInfo.daily[date];
+                    let resCount = 0;
+                    let spend = 0;
+
+                    if (daily) {
+                        spend = daily.spend;
+                        if (selectedMetric === 'all') {
+                            resCount = Object.values(daily.actionsMap).reduce((a, b) => a + b, 0);
+                        } else {
+                            resCount = daily.actionsMap[selectedMetric] || 0;
+                        }
+                    }
+
+                    rangeRes += resCount;
+                    rangeSpend += spend;
+
+                    const cpr = resCount > 0 ? (spend / resCount) : 0;
 
                     bodyHtml += `
                         <td class="text-center metric-cell border-start">
                             <div class="d-flex flex-column">
-                                <span class="res-value">${data.res}</span>
-                                <span class="cpr-value">${data.cpr > 0 ? formatCurrency(data.cpr) : '-'}</span>
+                                <span class="res-value">${resCount || '-'}</span>
+                                <span class="cpr-value">${resCount > 0 ? formatCurrency(cpr) : '-'}</span>
                             </div>
                         </td>`;
                 });
 
-                // Calculate Totals
-                const avgCpr = totalRes > 0 ? totalSpend / totalRes : 0;
+                // Calculate Range Totals
+                const rangeAvgCpr = rangeRes > 0 ? rangeSpend / rangeRes : 0;
                 bodyHtml += `
                     <td class="text-center metric-cell total-col">
                         <div class="d-flex flex-column">
-                            <span class="res-value text-dark">${totalRes}</span>
-                            <span class="cpr-value text-dark">${avgCpr > 0 ? formatCurrency(avgCpr) : '-'}</span>
+                            <span class="res-value text-dark">${rangeRes || '-'}</span>
+                            <span class="cpr-value text-dark">${rangeRes > 0 ? formatCurrency(rangeAvgCpr) : '-'}</span>
                         </div>
                     </td>`;
 
@@ -448,6 +500,10 @@
         // --- LISTENERS ---
         document.getElementById('btn-login').addEventListener('click', login);
         document.getElementById('btn-fetch').addEventListener('click', fetchReport);
+        document.getElementById('metric-selector').addEventListener('change', (e) => {
+            selectedMetric = e.target.value;
+            renderTableUI();
+        });
 
     </script>
 </body>
