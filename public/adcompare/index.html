@@ -85,7 +85,7 @@
                         </button>
 
                         <div class="mt-4 pt-3 border-top">
-                            <a href="privacy-policy.html" target="_blank" class="text-decoration-none small text-muted">
+                            <a href="privacy.html" target="_blank" class="text-decoration-none small text-muted">
                                 <i class="bi bi-shield-lock me-1"></i>Privacy Policy
                             </a>
                         </div>
@@ -274,8 +274,20 @@
             sortedDates.forEach(d => headHtml += `<th class="text-center">${new Date(d).toLocaleDateString('en-US', { month: 'short', day: '2-digit' })}</th>`);
             headHtml += `<th class="text-center total-col">Total / Avg</th></tr>`;
             document.getElementById('table-head').innerHTML = headHtml;
-            document.getElementById('ad-search').addEventListener('input', (e) => { currentFilter = e.target.value; renderTableUI(true); });
-            if (fromSearch) document.getElementById('ad-search').focus();
+            
+            const searchInput = document.getElementById('ad-search');
+            searchInput.addEventListener('input', (e) => { 
+                currentFilter = e.target.value; 
+                renderTableUI(true); 
+            });
+            
+            // Fix: If re-rendered during a search, restore focus and move cursor to the end
+            // to prevent "retsop" reversed typing behavior.
+            if (fromSearch) {
+                searchInput.focus();
+                searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
+            }
+
             const names = Object.keys(adsDataMap).filter(n => n.toLowerCase().includes(currentFilter.toLowerCase())).sort((a,b) => (pinnedAds.has(a) ? -1 : 1));
             let bodyHtml = '';
             names.forEach(adName => {
