@@ -93,6 +93,23 @@
             background-color: var(--bs-primary);
             border-color: var(--bs-primary);
         }
+
+        .guide-section {
+            border-top: 1px solid #eee;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            text-align: left;
+        }
+
+        .guide-step {
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            color: #4b4f56;
+        }
+
+        .guide-step strong {
+            color: #1c1e21;
+        }
     </style>
 </head>
 <body>
@@ -120,21 +137,44 @@
         <!-- Login View -->
         <div id="auth-section" class="row justify-content-center mt-5">
             <div class="col-md-6">
-                <div class="card text-center shadow">
+                <div class="card shadow">
                     <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800" class="hero-img">
-                    <div class="card-body p-5">
+                    <div class="card-body p-5 text-center">
                         <h2 class="fw-bold mb-3">Ads Result Comparison</h2>
                         <p class="text-muted mb-4">Connect your own Meta App to pull real-time campaign insights.</p>
                         
                         <div class="text-start mb-3">
                             <label for="meta-app-id" class="form-label small fw-bold">Meta App ID</label>
-                            <input type="text" id="meta-app-id" class="form-control app-id-input" placeholder="e.g. 2107584723372135">
+                            <input type="text" id="meta-app-id" class="form-control app-id-input" placeholder="e.g. 5839210485729104">
                             <div class="form-text mt-0">Enter your App ID from the Meta Developer Portal.</div>
                         </div>
 
                         <button id="btn-login" class="btn btn-fb btn-lg w-100 shadow-sm" disabled>
                             <i class="bi bi-facebook me-2"></i><span id="login-text">Loading SDK...</span>
                         </button>
+
+                        <!-- Meta App Setup Guide -->
+                        <div class="guide-section">
+                            <h6 class="fw-bold mb-3"><i class="bi bi-info-circle me-2"></i>How to create a Meta App ID</h6>
+                            <div class="guide-step">
+                                <strong>1.</strong> Visit <a href="https://developers.facebook.com/" target="_blank">Meta for Developers</a> and click "My Apps" > "Create App".
+                            </div>
+                            <div class="guide-step">
+                                <strong>2.</strong> Choose "Other" then select "Business" or "Marketing API" as your app type.
+                            </div>
+                            <div class="guide-step">
+                                <strong>3.</strong> Go to <strong>App Settings > Basic</strong> and add <code>robotys.net</code> as the <strong>App Domain</strong>.
+                            </div>
+                            <div class="guide-step">
+                                <strong>4.</strong> At the bottom of Basic Settings, click "Add Platform", choose "Website", and enter the URL where this app is hosted.
+                            </div>
+                            <div class="guide-step">
+                                <strong>5.</strong> Add the <strong>Marketing API</strong> product to your app from the Dashboard.
+                            </div>
+                            <div class="guide-step">
+                                <strong>6.</strong> Ensure your app is in "Live" mode or add your account as a developer to access data.
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -329,7 +369,6 @@
             toggleLoader(true, "Pulling Campaign Insights...");
             
             try {
-                // Included impressions, reach, frequency in fields
                 const fields = 'ad_name,objective,adset_name,date_start,actions,spend,reach,frequency,impressions';
                 const timeRange = JSON.stringify({ "since": start, "until": end });
                 const url = `https://graph.facebook.com/${API_VERSION}/${accountId}/insights?level=ad&fields=${fields}&time_increment=1&time_range=${encodeURIComponent(timeRange)}&limit=5000&access_token=${userAccessToken}`;
