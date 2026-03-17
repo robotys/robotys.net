@@ -270,8 +270,9 @@
             toggleLoader(true, "Pulling Campaign Insights...");
             
             try {
-                const fields = 'ad_name,campaign{objective},adset{name},date_start,actions,spend';
-                // Use double quotes for JSON inside URL and properly encode the JSON string
+                // Fixed: campaign and adset field expansions are not valid in insights fields parameter.
+                // Using valid top-level insights fields: objective and adset_name.
+                const fields = 'ad_name,objective,adset_name,date_start,actions,spend';
                 const timeRange = JSON.stringify({ "since": start, "until": end });
                 const url = `https://graph.facebook.com/${API_VERSION}/${accountId}/insights?level=ad&fields=${fields}&time_increment=1&time_range=${encodeURIComponent(timeRange)}&access_token=${userAccessToken}`;
                 
@@ -302,8 +303,9 @@
             rawData.forEach(item => {
                 const adName = item.ad_name;
                 const date = item.date_start;
-                const objective = item.campaign?.objective || 'N/A';
-                const audience = item.adset?.name || 'N/A';
+                // Updated to read directly from top-level insight fields
+                const objective = item.objective || 'N/A';
+                const audience = item.adset_name || 'N/A';
                 dateSet.add(date);
 
                 if (!adsDataMap[adName]) {
