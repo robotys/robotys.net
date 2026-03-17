@@ -159,7 +159,7 @@
 
     <script>
         // --- CONFIGURATION ---
-        const APP_ID = '2107584723372135'; // Replace with your real Meta App ID
+        const APP_ID = '2107584723372135'; // Updated Meta App ID
         const API_VERSION = 'v19.0';
         
         let userAccessToken = '';
@@ -271,14 +271,22 @@
             
             try {
                 const fields = 'ad_name,campaign{objective},adset{name},date_start,actions,spend';
-                const url = `https://graph.facebook.com/${API_VERSION}/${accountId}/insights?level=ad&fields=${fields}&time_increment=1&time_range={'since':'${start}','until':'${end}'}&access_token=${userAccessToken}`;
+                // Use double quotes for JSON inside URL and properly encode the JSON string
+                const timeRange = JSON.stringify({ "since": start, "until": end });
+                const url = `https://graph.facebook.com/${API_VERSION}/${accountId}/insights?level=ad&fields=${fields}&time_increment=1&time_range=${encodeURIComponent(timeRange)}&access_token=${userAccessToken}`;
                 
                 const response = await fetch(url);
                 const result = await response.json();
                 
+                if (result.error) {
+                    console.error("Meta API Error:", result.error);
+                    throw new Error(result.error.message || "Failed to fetch data from Meta.");
+                }
+
                 processData(result.data);
                 renderTableUI();
             } catch (err) {
+                console.error("Fetch Error:", err);
                 alert("API Error: " + err.message);
             } finally {
                 toggleLoader(false);
@@ -306,7 +314,7 @@
                     };
                 }
 
-                const results = item.actions ? item.actions.reduce((acc, curr) => acc + parseInt(curr.value), 0) : 0;
+                const results = item.actions ? item.actions.reduce((acc, curr) => acc + parseInt(curr.value || 0), 0) : 0;
                 const spend = parseFloat(item.spend) || 0;
                 const cpr = results > 0 ? (spend / results) : 0;
 
