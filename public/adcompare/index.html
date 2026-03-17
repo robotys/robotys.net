@@ -15,7 +15,9 @@
         .table-container { background: white; border-radius: 12px; overflow: hidden; border: 1px solid #dee2e6; }
         .table thead th { background-color: #f8f9fa; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; color: #65676b; padding: 1rem; vertical-align: top; }
         .metric-cell { min-width: 140px; transition: background 0.2s; }
-        .res-value { font-size: 1.1rem; font-weight: 700; color: #0d6efd; }
+        
+        .reach-freq-value { font-size: 0.75rem; color: #6c757d; font-weight: 500; }
+        .res-value { font-size: 1.1rem; font-weight: 700; color: #0d6efd; line-height: 1.2; }
         .cpr-value { font-size: 0.9rem; font-weight: 600; color: #198754; }
         
         .ad-name-col { 
@@ -86,6 +88,11 @@
             font-size: 0.95rem;
             margin-bottom: 1rem;
         }
+
+        .form-check-input:checked {
+            background-color: var(--bs-primary);
+            border-color: var(--bs-primary);
+        }
     </style>
 </head>
 <body>
@@ -152,13 +159,17 @@
                             <label class="form-label small fw-bold">3. To</label>
                             <input type="date" id="date-end" class="form-control">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label small fw-bold">4. Result Metric</label>
                             <select id="metric-selector" class="form-select">
                                 <option value="all">Total Actions (All)</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3 d-flex flex-column gap-2">
+                            <div class="form-check form-switch mb-1">
+                                <input class="form-check-input" type="checkbox" id="toggle-reach-freq" checked>
+                                <label class="form-check-label small fw-bold" for="toggle-reach-freq">Show Reach & Freq</label>
+                            </div>
                             <button id="btn-fetch" class="btn btn-primary w-100 fw-bold">
                                 <i class="bi bi-graph-up me-2"></i>Fetch Data
                             </button>
@@ -200,10 +211,10 @@
         let accountCurrency = "USD";
         let availableActionTypes = new Set();
         let selectedMetric = "all";
+        let showReachFreq = true;
 
         // --- FACEBOOK SDK INIT ---
         window.fbAsyncInit = function() {
-            // SDK is loaded but not yet initialized with an App ID
             fbSdkLoaded = true;
             const loginBtn = document.getElementById('btn-login');
             loginBtn.disabled = false;
@@ -258,7 +269,6 @@
                 return;
             }
 
-            // Initialize the SDK with the user-provided App ID
             try {
                 FB.init({
                     appId      : customAppId,
@@ -274,8 +284,6 @@
                 if (response.authResponse) {
                     userAccessToken = response.authResponse.accessToken;
                     initDashboard();
-                } else {
-                    console.log("User cancelled login or did not fully authorize.");
                 }
             }, { scope: 'ads_read,public_profile' });
         }
@@ -321,7 +329,8 @@
             toggleLoader(true, "Pulling Campaign Insights...");
             
             try {
-                const fields = 'ad_name,objective,adset_name,date_start,actions,spend';
+                // Included impressions, reach, frequency in fields
+                const fields = 'ad_name,objective,adset_name,date_start,actions,spend,reach,frequency,impressions';
                 const timeRange = JSON.stringify({ "since": start, "until": end });
                 const url = `https://graph.facebook.com/${API_VERSION}/${accountId}/insights?level=ad&fields=${fields}&time_increment=1&time_range=${encodeURIComponent(timeRange)}&limit=5000&access_token=${userAccessToken}`;
                 
@@ -375,8 +384,11 @@
                 }
 
                 const spend = parseFloat(item.spend) || 0;
+                const reach = parseInt(item.reach) || 0;
+                const frequency = parseFloat(item.frequency) || 0;
+                const impressions = parseInt(item.impressions) || 0;
 
-                adsDataMap[adName].daily[date] = { actionsMap, spend };
+                adsDataMap[adName].daily[date] = { actionsMap, spend, reach, frequency, impressions };
             });
 
             sortedDates = Array.from(dateSet).sort();
@@ -464,6 +476,8 @@
                 const adInfo = adsDataMap[adName];
                 let rangeRes = 0;
                 let rangeSpend = 0;
+                let rangeReach = 0;
+                let rangeImpressions = 0;
 
                 bodyHtml += `<tr class="${isPinned ? 'pinned-row' : ''}">
                     <td class="ad-name-col fw-bold">
@@ -482,9 +496,15 @@
                     const daily = adInfo.daily[date];
                     let resCount = 0;
                     let spend = 0;
+                    let reach = 0;
+                    let freq = 0;
+                    let imps = 0;
 
                     if (daily) {
                         spend = daily.spend;
+                        reach = daily.reach;
+                        freq = daily.frequency;
+                        imps = daily.impressions;
                         if (selectedMetric === 'all') {
                             resCount = Object.values(daily.actionsMap).reduce((a, b) => a + b, 0);
                         } else {
@@ -494,11 +514,15 @@
 
                     rangeRes += resCount;
                     rangeSpend += spend;
+                    rangeReach += reach;
+                    rangeImpressions += imps;
+
                     const cpr = resCount > 0 ? (spend / resCount) : 0;
 
                     bodyHtml += `
                         <td class="text-center metric-cell border-start">
                             <div class="d-flex flex-column">
+                                ${showReachFreq ? `<span class="reach-freq-value mb-1">${reach.toLocaleString()} (${freq.toFixed(2)})</span>` : ''}
                                 <span class="res-value">${resCount || '-'}</span>
                                 <span class="cpr-value">${resCount > 0 ? formatCurrency(cpr) : '-'}</span>
                             </div>
@@ -506,9 +530,12 @@
                 });
 
                 const rangeAvgCpr = rangeRes > 0 ? rangeSpend / rangeRes : 0;
+                const rangeAvgFreq = rangeReach > 0 ? rangeImpressions / rangeReach : 0;
+
                 bodyHtml += `
                     <td class="text-center metric-cell total-col">
                         <div class="d-flex flex-column">
+                            ${showReachFreq ? `<span class="reach-freq-value mb-1 text-dark">${rangeReach.toLocaleString()} (${rangeAvgFreq.toFixed(2)})</span>` : ''}
                             <span class="res-value text-dark">${rangeRes || '-'}</span>
                             <span class="cpr-value text-dark">${rangeRes > 0 ? formatCurrency(rangeAvgCpr) : '-'}</span>
                         </div>
@@ -529,6 +556,10 @@
         document.getElementById('btn-fetch').addEventListener('click', fetchReport);
         document.getElementById('metric-selector').addEventListener('change', (e) => {
             selectedMetric = e.target.value;
+            renderTableUI();
+        });
+        document.getElementById('toggle-reach-freq').addEventListener('change', (e) => {
+            showReachFreq = e.target.checked;
             renderTableUI();
         });
 
