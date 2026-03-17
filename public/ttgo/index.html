@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>TikTok Shop Extractor</title>
+
+<style>
+body{
+  font-family: Arial;
+  max-width:600px;
+  margin:40px auto;
+}
+
+input,button,textarea{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+}
+
+textarea{
+  height:300px;
+}
+</style>
+
+</head>
+
+<body>
+
+<h2>TikTok Shop Product Extractor</h2>
+
+<input id="username" value="@elrahexclusivedamansara" placeholder="Your Username (without @)">
+
+<button onclick="run()">Submit</button>
+
+<p id="status"></p>
+
+<textarea id="result"></textarea>
+
+<script>
+async function run(){
+
+  const username = document.getElementById("username").value.replace("@","")
+  const status = document.getElementById("status")
+  const result = document.getElementById("result")
+
+  const proxy = "https://corsproxy.io/?"
+
+  try{
+
+    status.innerText = "Loading profile page..."
+
+    if(localStorage['tt_secUid'] == undefined)
+    {
+      const res = await fetch(
+        proxy + encodeURIComponent(`https://www.tiktok.com/@${username}`)
+      )
+
+      const html = await res.text()
+
+      const match = html.match(
+        /secUid/
+      )
+
+      if(!match){
+        status.innerText = "Could not find profile data"
+        return
+      }
+
+      // console.log(html.split('secUid":"')[1].split('"')[0]);
+
+      // const data = JSON.parse(match[1])
+
+      // const userModule = data.UserModule.users
+
+      // const userKey = Object.keys(userModule)[0]
+
+      localStorage['tt_secUid'] = html.split('secUid":"')[1].split('"')[0];
+    }
+
+    const secUid = localStorage['tt_secUid'];
+
+    console.log(secUid);
+    status.innerText = "Fetching shop products..."
+
+    const url = proxy + encodeURIComponent(
+        `https://oec-api.tiktokv.com/shop/v2/product/list?seller_sec_uid=${secUid}&page_size=100&page=1`
+      );
+
+    console.log(url);
+    // const shopRes = await fetch(
+    //   url
+    // )
+
+    const shop = await shopRes
+    console.log(shop);
+    const products = shop.data.products.map(p => ({
+      id: p.product_id,
+      title: p.title,
+      price: p.sale_price,
+      sold: p.sales
+    }))
+
+    result.value = JSON.stringify(products,null,2)
+
+    status.innerText = `Done. ${products.length} products found.`
+
+  }catch(e){
+
+    status.innerText = "Error: " + e.message
+
+  }
+
+}
+</script>
+
+</body>
+</html>

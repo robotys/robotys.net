@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AdCompare | Real-Time Meta Ads Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root { --bs-primary: #1877f2; }
+        body { background-color: #f0f2f5; font-family: -apple-system, sans-serif; color: #1c1e21; }
+        .navbar { background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+        .card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .hero-img { width: 100%; height: 250px; object-fit: cover; border-radius: 12px 12px 0 0; }
+        .table-container { background: white; border-radius: 12px; overflow: hidden; border: 1px solid #dee2e6; }
+        .table thead th { background-color: #f8f9fa; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; color: #65676b; padding: 1rem; }
+        .metric-cell { min-width: 160px; transition: background 0.2s; }
+        .res-value { font-size: 1.1rem; font-weight: 700; color: #0d6efd; }
+        .cpr-value { font-size: 0.9rem; font-weight: 600; color: #198754; }
+        .ad-name-col { min-width: 250px; background: #fff; position: sticky; left: 0; z-index: 10; border-right: 2px solid #dee2e6 !important; }
+        #loader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.8); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; }
+        .btn-fb { background-color: #1877f2; color: white; border-radius: 8px; font-weight: 600; padding: 12px 24px; }
+        .btn-fb:hover { background-color: #166fe5; color: white; }
+    </style>
+</head>
+<body>
+
+    <div id="fb-root"></div>
+    <div id="loader">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2 fw-bold" id="loader-text">Connecting to Meta...</p>
+    </div>
+
+    <nav class="navbar sticky-top mb-4">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center fw-bold text-primary" href="#">
+                <i class="bi bi-megaphone-fill me-2"></i> AdCompare
+            </a>
+            <div id="user-info" class="d-none">
+                <span id="user-name" class="text-muted small me-3"></span>
+                <button class="btn btn-sm btn-outline-danger" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container pb-5">
+        
+        <!-- Login View -->
+        <div id="auth-section" class="row justify-content-center mt-5">
+            <div class="col-md-6">
+                <div class="card text-center">
+                    <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800" class="hero-img">
+                    <div class="card-body p-5">
+                        <h2 class="fw-bold mb-3">Ads Result Comparison</h2>
+                        <p class="text-muted mb-4">Log in to Meta to pull your real-time campaign insights and compare daily performance.</p>
+                        <button id="btn-login" class="btn btn-fb btn-lg w-100 shadow-sm">
+                            <i class="bi bi-facebook me-2"></i>Login with Facebook
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard View -->
+        <div id="dashboard-section" class="d-none">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">1. Select Ad Account</label>
+                            <select id="account-selector" class="form-select">
+                                <option value="">Loading accounts...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold">2. From</label>
+                            <input type="date" id="date-start" class="form-control">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold">3. To</label>
+                            <input type="date" id="date-end" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                            <button id="btn-fetch" class="btn btn-primary w-100 fw-bold">
+                                <i class="bi bi-graph-up me-2"></i>Compare Results
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="table-wrapper" class="table-container d-none">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead id="table-head"></thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="empty-state" class="text-center p-5 mt-4 bg-white rounded shadow-sm">
+                <i class="bi bi-calendar-range display-1 text-light"></i>
+                <h4 class="mt-3">Ready to Analyze</h4>
+                <p class="text-muted">Select an account and date range to generate your report.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const APP_ID = 'YOUR_APP_ID'; // Replace with your real Meta App ID
+        const API_VERSION = 'v19.0';
+        
+        let userAccessToken = '';
+        let adAccounts = [];
+
+        // --- FACEBOOK SDK INIT ---
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId      : APP_ID,
+                cookie     : true,
+                xfbml      : true,
+                version    : API_VERSION
+            });
+        };
+
+        (function(d, s, id){
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) {return;}
+            js = d.createElement(s); js.id = id;
+            js.src = "https://connect.facebook.net/en_US/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+
+        // --- UI HELPERS ---
+        const toggleLoader = (show, text = "Connecting...") => {
+            document.getElementById('loader').style.display = show ? 'flex' : 'none';
+            document.getElementById('loader-text').innerText = text;
+        };
+
+        const setDefaultDates = () => {
+            const today = new Date();
+            const lastWeek = new Date(today);
+            lastWeek.setDate(today.getDate() - 7);
+            document.getElementById('date-end').value = today.toISOString().split('T')[0];
+            document.getElementById('date-start').value = lastWeek.toISOString().split('T')[0];
+        };
+
+        // --- API CALLS ---
+        async function fetchWithRetry(url, options = {}, retries = 5, backoff = 1000) {
+            try {
+                const response = await fetch(url, options);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (err) {
+                if (retries > 0) {
+                    await new Promise(r => setTimeout(r, backoff));
+                    return fetchWithRetry(url, options, retries - 1, backoff * 2);
+                }
+                throw err;
+            }
+        }
+
+        async function login() {
+            FB.login((response) => {
+                if (response.authResponse) {
+                    userAccessToken = response.authResponse.accessToken;
+                    initDashboard();
+                }
+            }, { scope: 'ads_read,read_insights' });
+        }
+
+        async function initDashboard() {
+            toggleLoader(true, "Fetching Ad Accounts...");
+            try {
+                const data = await fetchWithRetry(`https://graph.facebook.com/${API_VERSION}/me/adaccounts?fields=name,account_id&access_token=${userAccessToken}`);
+                adAccounts = data.data;
+                
+                const selector = document.getElementById('account-selector');
+                selector.innerHTML = adAccounts.map(acc => `<option value="${acc.id}">${acc.name} (${acc.account_id})</option>`).join('');
+                
+                document.getElementById('auth-section').classList.add('d-none');
+                document.getElementById('dashboard-section').classList.remove('d-none');
+                document.getElementById('user-info').classList.remove('d-none');
+                setDefaultDates();
+            } catch (err) {
+                alert("Failed to load ad accounts. Check your App ID or Permissions.");
+            } finally {
+                toggleLoader(false);
+            }
+        }
+
+        async function fetchReport() {
+            const accountId = document.getElementById('account-selector').value;
+            const start = document.getElementById('date-start').value;
+            const end = document.getElementById('date-end').value;
+
+            if (!accountId || !start || !end) return alert("Please select all fields.");
+
+            toggleLoader(true, "Pulling Campaign Insights...");
+            
+            try {
+                // Fields to fetch
+                const fields = 'ad_name,date_start,actions,spend';
+                const url = `https://graph.facebook.com/${API_VERSION}/${accountId}/insights?level=ad&fields=${fields}&time_increment=1&time_range={'since':'${start}','until':'${end}'}&access_token=${userAccessToken}`;
+                
+                const response = await fetchWithRetry(url);
+                processAndRenderData(response.data);
+            } catch (err) {
+                alert("API Error: " + err.message);
+            } finally {
+                toggleLoader(false);
+            }
+        }
+
+        function processAndRenderData(rawData) {
+            if (!rawData || rawData.length === 0) {
+                document.getElementById('empty-state').classList.remove('d-none');
+                document.getElementById('table-wrapper').classList.add('d-none');
+                return;
+            }
+
+            // Pivot Logic: Group by Ad Name, then map by Date
+            const adsMap = {};
+            const uniqueDates = new Set();
+
+            rawData.forEach(item => {
+                const adName = item.ad_name;
+                const date = item.date_start;
+                uniqueDates.add(date);
+
+                if (!adsMap[adName]) adsMap[adName] = {};
+
+                // Get "Results" (usually we look for 'link_click' or sum of actions)
+                const results = item.actions ? item.actions.reduce((acc, curr) => acc + parseInt(curr.value), 0) : 0;
+                const spend = parseFloat(item.spend) || 0;
+                const cpr = results > 0 ? (spend / results) : 0;
+
+                adsMap[adName][date] = { res: results, cpr: cpr };
+            });
+
+            const sortedDates = Array.from(uniqueDates).sort();
+            renderTableUI(adsMap, sortedDates);
+        }
+
+        function renderTableUI(adsMap, dates) {
+            document.getElementById('empty-state').classList.add('d-none');
+            const wrapper = document.getElementById('table-wrapper');
+            wrapper.classList.remove('d-none');
+
+            // Header
+            let headHtml = `<tr><th class="ad-name-col">Ads Name</th>`;
+            dates.forEach(d => {
+                const display = new Date(d).toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+                headHtml += `<th class="text-center">${display}</th>`;
+            });
+            headHtml += `</tr>`;
+            document.getElementById('table-head').innerHTML = headHtml;
+
+            // Body
+            let bodyHtml = '';
+            Object.keys(adsMap).forEach(adName => {
+                bodyHtml += `<tr><td class="ad-name-col fw-bold">${adName}</td>`;
+                dates.forEach(date => {
+                    const data = adsMap[adName][date] || { res: '-', cpr: 0 };
+                    bodyHtml += `
+                        <td class="text-center metric-cell border-start">
+                            <div class="d-flex flex-column">
+                                <span class="res-value">${data.res}</span>
+                                <span class="cpr-value">${data.cpr > 0 ? '$' + data.cpr.toFixed(2) : '-'}</span>
+                                <span class="text-uppercase text-muted" style="font-size: 0.6rem; font-weight:800">Res / Cost</span>
+                            </div>
+                        </td>`;
+                });
+                bodyHtml += `</tr>`;
+            });
+            document.getElementById('table-body').innerHTML = bodyHtml;
+        }
+
+        function logout() {
+            FB.logout(() => location.reload());
+        }
+
+        // --- LISTENERS ---
+        document.getElementById('btn-login').addEventListener('click', login);
+        document.getElementById('btn-fetch').addEventListener('click', fetchReport);
+
+    </script>
+</body>
+</html>
