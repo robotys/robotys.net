@@ -21,6 +21,7 @@
         #loader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.8); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; }
         .btn-fb { background-color: #1877f2; color: white; border-radius: 8px; font-weight: 600; padding: 12px 24px; }
         .btn-fb:hover { background-color: #166fe5; color: white; }
+        .btn-fb:disabled { background-color: #89b4f7; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -53,8 +54,8 @@
                     <div class="card-body p-5">
                         <h2 class="fw-bold mb-3">Ads Result Comparison</h2>
                         <p class="text-muted mb-4">Log in to Meta to pull your real-time campaign insights and compare daily performance.</p>
-                        <button id="btn-login" class="btn btn-fb btn-lg w-100 shadow-sm">
-                            <i class="bi bi-facebook me-2"></i>Login with Facebook
+                        <button id="btn-login" class="btn btn-fb btn-lg w-100 shadow-sm" disabled>
+                            <i class="bi bi-facebook me-2"></i><span id="login-text">Loading SDK...</span>
                         </button>
                     </div>
                 </div>
@@ -108,11 +109,12 @@
 
     <script>
         // --- CONFIGURATION ---
-        const APP_ID = 'YOUR_APP_ID'; // Replace with your real Meta App ID
+        const APP_ID = '2107584723372135'; // Replace with your real Meta App ID
         const API_VERSION = 'v19.0';
         
         let userAccessToken = '';
         let adAccounts = [];
+        let fbInitialized = false;
 
         // --- FACEBOOK SDK INIT ---
         window.fbAsyncInit = function() {
@@ -122,6 +124,10 @@
                 xfbml      : true,
                 version    : API_VERSION
             });
+            fbInitialized = true;
+            const loginBtn = document.getElementById('btn-login');
+            loginBtn.disabled = false;
+            document.getElementById('login-text').innerText = "Login with Facebook";
         };
 
         (function(d, s, id){
@@ -162,6 +168,10 @@
         }
 
         async function login() {
+            if (!fbInitialized) {
+                alert("Facebook SDK is still loading. Please wait a moment.");
+                return;
+            }
             FB.login((response) => {
                 if (response.authResponse) {
                     userAccessToken = response.authResponse.accessToken;
@@ -278,7 +288,11 @@
         }
 
         function logout() {
-            FB.logout(() => location.reload());
+            if (window.FB) {
+                FB.logout(() => location.reload());
+            } else {
+                location.reload();
+            }
         }
 
         // --- LISTENERS ---
