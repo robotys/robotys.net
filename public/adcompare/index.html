@@ -19,7 +19,7 @@
         .cpr-value { font-size: 0.9rem; font-weight: 600; color: #198754; }
         
         .ad-name-col { 
-            min-width: 300px; 
+            min-width: 250px; 
             background: #fff; 
             position: sticky; 
             left: 0; 
@@ -28,6 +28,12 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+        }
+
+        .meta-col {
+            min-width: 150px;
+            font-size: 0.85rem;
+            color: #65676b;
         }
         
         .total-col {
@@ -150,10 +156,11 @@
         let fbInitialized = false;
         
         // Data State
-        let adsDataMap = {}; // adName -> { date -> {res, cpr, spend} }
+        let adsDataMap = {}; // adName -> { objective, audience, daily: { date -> {res, cpr, spend} } }
         let sortedDates = [];
         let pinnedAds = new Set();
         let currentFilter = "";
+        let accountCurrency = "USD"; // Default fallback
 
         // --- FACEBOOK SDK INIT ---
         window.fbAsyncInit = function() {
@@ -191,6 +198,14 @@
             document.getElementById('date-start').value = lastWeek.toISOString().split('T')[0];
         };
 
+        const formatCurrency = (amount) => {
+            if (amount === '-' || isNaN(amount)) return '-';
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: accountCurrency,
+            }).format(amount);
+        };
+
         // --- API & DATA LOGIC ---
         async function login() {
             if (!fbInitialized) {
@@ -208,13 +223,19 @@
         async function initDashboard() {
             toggleLoader(true, "Fetching Ad Accounts...");
             try {
-                const response = await fetch(`https://graph.facebook.com/${API_VERSION}/me/adaccounts?fields=name,account_id&access_token=${userAccessToken}`);
+                // Fetch name, id, and currency for accounts
+                const response = await fetch(`https://graph.facebook.com/${API_VERSION}/me/adaccounts?fields=name,account_id,currency&access_token=${userAccessToken}`);
                 const data = await response.json();
                 adAccounts = data.data;
                 
                 const selector = document.getElementById('account-selector');
-                selector.innerHTML = adAccounts.map(acc => `<option value="${acc.id}">${acc.name}</option>`).join('');
+                selector.innerHTML = adAccounts.map(acc => `<option value="${acc.id}" data-currency="${acc.currency}">${acc.name}</option>`).join('');
                 
+                // Update currency based on initially selected account
+                if (adAccounts.length > 0) {
+                    accountCurrency = adAccounts[0].currency;
+                }
+
                 document.getElementById('auth-section').classList.add('d-none');
                 document.getElementById('dashboard-section').classList.remove('d-none');
                 document.getElementById('user-info').classList.remove('d-none');
@@ -228,16 +249,21 @@
         }
 
         async function fetchReport() {
-            const accountId = document.getElementById('account-selector').value;
+            const selector = document.getElementById('account-selector');
+            const accountId = selector.value;
             const start = document.getElementById('date-start').value;
             const end = document.getElementById('date-end').value;
+
+            // Update currency based on selection
+            accountCurrency = selector.options[selector.selectedIndex].dataset.currency || "USD";
 
             if (!accountId || !start || !end) return alert("Please select all fields.");
 
             toggleLoader(true, "Pulling Campaign Insights...");
             
             try {
-                const fields = 'ad_name,date_start,actions,spend';
+                // Expanded fields to get objective and adset (audience) info
+                const fields = 'ad_name,campaign{objective},adset{name},date_start,actions,spend';
                 const url = `https://graph.facebook.com/${API_VERSION}/${accountId}/insights?level=ad&fields=${fields}&time_increment=1&time_range={'since':'${start}','until':'${end}'}&access_token=${userAccessToken}`;
                 
                 const response = await fetch(url);
@@ -259,15 +285,23 @@
             rawData.forEach(item => {
                 const adName = item.ad_name;
                 const date = item.date_start;
+                const objective = item.campaign?.objective || 'N/A';
+                const audience = item.adset?.name || 'N/A';
                 dateSet.add(date);
 
-                if (!adsDataMap[adName]) adsDataMap[adName] = {};
+                if (!adsDataMap[adName]) {
+                    adsDataMap[adName] = { 
+                        objective: objective.replace(/_/g, ' ').toLowerCase(), 
+                        audience: audience,
+                        daily: {} 
+                    };
+                }
 
                 const results = item.actions ? item.actions.reduce((acc, curr) => acc + parseInt(curr.value), 0) : 0;
                 const spend = parseFloat(item.spend) || 0;
                 const cpr = results > 0 ? (spend / results) : 0;
 
-                adsDataMap[adName][date] = { res: results, cpr: cpr, spend: spend };
+                adsDataMap[adName].daily[date] = { res: results, cpr: cpr, spend: spend };
             });
 
             sortedDates = Array.from(dateSet).sort();
@@ -289,7 +323,10 @@
             document.getElementById('empty-state').classList.add('d-none');
 
             // Header
-            let headHtml = `<tr><th class="ad-name-col">Ads Name</th>`;
+            let headHtml = `<tr>
+                <th class="ad-name-col">Ads Name</th>
+                <th class="meta-col">Objective</th>
+                <th class="meta-col">Audience</th>`;
             sortedDates.forEach(d => {
                 const display = new Date(d).toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
                 headHtml += `<th class="text-center">${display}</th>`;
@@ -310,6 +347,7 @@
             let bodyHtml = '';
             allAdNames.forEach(adName => {
                 const isPinned = pinnedAds.has(adName);
+                const adInfo = adsDataMap[adName];
                 let totalRes = 0;
                 let totalSpend = 0;
 
@@ -317,10 +355,12 @@
                     <td class="ad-name-col fw-bold">
                         <span>${adName}</span>
                         <i class="bi ${isPinned ? 'bi-pin-angle-fill active' : 'bi-pin-angle'} pin-btn ms-2" onclick="togglePin('${adName.replace(/'/g, "\\'")}')"></i>
-                    </td>`;
+                    </td>
+                    <td class="meta-col text-capitalize">${adInfo.objective}</td>
+                    <td class="meta-col">${adInfo.audience}</td>`;
                 
                 sortedDates.forEach(date => {
-                    const data = adsDataMap[adName][date] || { res: '-', cpr: 0, spend: 0 };
+                    const data = adInfo.daily[date] || { res: '-', cpr: 0, spend: 0 };
                     if (typeof data.res === 'number') totalRes += data.res;
                     totalSpend += data.spend;
 
@@ -328,7 +368,7 @@
                         <td class="text-center metric-cell border-start">
                             <div class="d-flex flex-column">
                                 <span class="res-value">${data.res}</span>
-                                <span class="cpr-value">${data.cpr > 0 ? '$' + data.cpr.toFixed(2) : '-'}</span>
+                                <span class="cpr-value">${data.cpr > 0 ? formatCurrency(data.cpr) : '-'}</span>
                                 <span class="text-uppercase text-muted" style="font-size: 0.6rem; font-weight:800">Daily</span>
                             </div>
                         </td>`;
@@ -340,7 +380,7 @@
                     <td class="text-center metric-cell total-col">
                         <div class="d-flex flex-column">
                             <span class="res-value text-dark">${totalRes}</span>
-                            <span class="cpr-value text-dark">${avgCpr > 0 ? '$' + avgCpr.toFixed(2) : '-'}</span>
+                            <span class="cpr-value text-dark">${avgCpr > 0 ? formatCurrency(avgCpr) : '-'}</span>
                             <span class="text-uppercase text-muted" style="font-size: 0.6rem; font-weight:800">Range Sum</span>
                         </div>
                     </td>`;
