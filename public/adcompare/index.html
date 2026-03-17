@@ -29,38 +29,11 @@
             border-right: 2px solid #dee2e6 !important; 
         }
 
-        .ad-name-header {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .ad-row-content {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            width: 100%;
-        }
-
-        .ad-info-main {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.2;
-        }
-
-        .ad-meta-subtitle {
-            font-size: 0.7rem;
-            color: #65676b;
-            font-weight: normal;
-            margin-top: 4px;
-        }
-        
-        .total-col {
-            background-color: #f8f9fa !important;
-            border-left: 2px solid #dee2e6 !important;
-            font-weight: bold;
-        }
-
+        .ad-name-header { display: flex; flex-direction: column; gap: 8px; }
+        .ad-row-content { display: flex; align-items: flex-start; justify-content: space-between; width: 100%; }
+        .ad-info-main { display: flex; flex-direction: column; line-height: 1.2; }
+        .ad-meta-subtitle { font-size: 0.7rem; color: #65676b; font-weight: normal; margin-top: 4px; }
+        .total-col { background-color: #f8f9fa !important; border-left: 2px solid #dee2e6 !important; font-weight: bold; }
         .pinned-row { background-color: #f0f7ff !important; border-bottom: 2px solid #0d6efd !important; }
         .pin-btn { color: #ccc; cursor: pointer; transition: color 0.2s; font-size: 1.1rem; margin-top: -2px; }
         .pin-btn.active { color: #0d6efd; }
@@ -73,43 +46,7 @@
         
         .search-container { position: relative; width: 100%; }
         .search-container i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #65676b; font-size: 0.8rem; }
-        .search-container input { 
-            padding-left: 30px; 
-            border-radius: 6px; 
-            border: 1px solid #ddd; 
-            font-size: 0.8rem; 
-            text-transform: none; 
-            font-weight: normal;
-        }
-
-        .app-id-input {
-            border-radius: 8px;
-            padding: 12px;
-            font-size: 0.95rem;
-            margin-bottom: 1rem;
-        }
-
-        .form-check-input:checked {
-            background-color: var(--bs-primary);
-            border-color: var(--bs-primary);
-        }
-
-        .guide-section {
-            border-top: 1px solid #eee;
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            text-align: left;
-        }
-
-        .guide-step {
-            font-size: 0.85rem;
-            margin-bottom: 0.5rem;
-            color: #4b4f56;
-        }
-
-        .guide-step strong {
-            color: #1c1e21;
-        }
+        .search-container input { padding-left: 30px; border-radius: 6px; border: 1px solid #ddd; font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -141,55 +78,30 @@
                     <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800" class="hero-img">
                     <div class="card-body p-5 text-center">
                         <h2 class="fw-bold mb-3">Ads Result Comparison</h2>
-                        <p class="text-muted mb-4">Connect your own Meta App to pull real-time campaign insights.</p>
+                        <p class="text-muted mb-4">Log in with your Facebook account to pull real-time campaign insights and compare performance across dates.</p>
                         
-                        <div class="text-start mb-3">
-                            <label for="meta-app-id" class="form-label small fw-bold">Meta App ID</label>
-                            <input type="text" id="meta-app-id" class="form-control app-id-input" placeholder="e.g. 5839210485729104">
-                            <div class="form-text mt-0">Enter your App ID from the Meta Developer Portal.</div>
-                        </div>
-
                         <button id="btn-login" class="btn btn-fb btn-lg w-100 shadow-sm" disabled>
                             <i class="bi bi-facebook me-2"></i><span id="login-text">Loading SDK...</span>
                         </button>
 
-                        <!-- Meta App Setup Guide -->
-                        <div class="guide-section">
-                            <h6 class="fw-bold mb-3"><i class="bi bi-info-circle me-2"></i>How to create a Meta App ID</h6>
-                            <div class="guide-step">
-                                <strong>1.</strong> Visit <a href="https://developers.facebook.com/" target="_blank">Meta for Developers</a> and click "My Apps" > "Create App".
-                            </div>
-                            <div class="guide-step">
-                                <strong>2.</strong> Choose "Other" then select "Business" or "Marketing API" as your app type.
-                            </div>
-                            <div class="guide-step">
-                                <strong>3.</strong> Go to <strong>App Settings > Basic</strong> and add <code>robotys.net</code> as the <strong>App Domain</strong>.
-                            </div>
-                            <div class="guide-step">
-                                <strong>4.</strong> At the bottom of Basic Settings, click "Add Platform", choose "Website", and enter the URL where this app is hosted.
-                            </div>
-                            <div class="guide-step">
-                                <strong>5.</strong> Add the <strong>Marketing API</strong> product to your app from the Dashboard.
-                            </div>
-                            <div class="guide-step">
-                                <strong>6.</strong> Ensure to toggle <strong>Login With Javascript SDK</strong> to yes in <strong>Facebook Login For Business > Settings</strong>.
-                            </div>
+                        <div class="mt-4 pt-3 border-top">
+                            <a href="privacy-policy.html" target="_blank" class="text-decoration-none small text-muted">
+                                <i class="bi bi-shield-lock me-1"></i>Privacy Policy
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Main Dashboard View -->
+        <!-- Dashboard View (State Managed via JS) -->
         <div id="dashboard-section" class="d-none">
             <div class="card mb-4">
                 <div class="card-body">
                     <div class="row g-3 align-items-end">
                         <div class="col-md-3">
                             <label class="form-label small fw-bold">1. Select Ad Account</label>
-                            <select id="account-selector" class="form-select">
-                                <option value="">Loading accounts...</option>
-                            </select>
+                            <select id="account-selector" class="form-select"></select>
                         </div>
                         <div class="col-md-2">
                             <label class="form-label small fw-bold">2. From</label>
@@ -236,40 +148,37 @@
     </div>
 
     <script>
-        // --- CONFIGURATION ---
+        const APP_ID = '2107584723372135'; 
         const API_VERSION = 'v19.0';
         
-        let userAccessToken = '';
-        let adAccounts = [];
-        let fbSdkLoaded = false;
-        
-        // Data State
-        let adsDataMap = {}; 
-        let sortedDates = [];
-        let pinnedAds = new Set();
-        let currentFilter = "";
-        let accountCurrency = "USD";
-        let availableActionTypes = new Set();
-        let selectedMetric = "all";
-        let showReachFreq = true;
+        let userAccessToken = '', adAccounts = [], fbSdkLoaded = false;
+        let adsDataMap = {}, sortedDates = [], pinnedAds = new Set();
+        let currentFilter = "", accountCurrency = "USD", availableActionTypes = new Set();
+        let selectedMetric = "all", showReachFreq = true;
 
-        // --- FACEBOOK SDK INIT ---
         window.fbAsyncInit = function() {
+            FB.init({
+                appId      : APP_ID,
+                cookie     : true,
+                xfbml      : true,
+                version    : API_VERSION
+            });
             fbSdkLoaded = true;
             const loginBtn = document.getElementById('btn-login');
-            loginBtn.disabled = false;
-            document.getElementById('login-text').innerText = "Login with Facebook";
+            if(loginBtn) {
+                loginBtn.disabled = false;
+                document.getElementById('login-text').innerText = "Login with Facebook";
+            }
         };
 
         (function(d, s, id){
             var js, fjs = d.getElementsByTagName(s)[0];
-            if (d.getElementById(id)) {return;}
+            if (d.getElementById(id)) return;
             js = d.createElement(s); js.id = id;
             js.src = "https://connect.facebook.net/en_US/sdk.js";
             fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));
 
-        // --- UI HELPERS ---
         const toggleLoader = (show, text = "Connecting...") => {
             document.getElementById('loader').style.display = show ? 'flex' : 'none';
             document.getElementById('loader-text').innerText = text;
@@ -285,41 +194,11 @@
 
         const formatCurrency = (amount) => {
             if (amount === '-' || isNaN(amount)) return '-';
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: accountCurrency,
-            }).format(amount);
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: accountCurrency }).format(amount);
         };
 
-        const formatActionLabel = (type) => {
-            if (type === 'all') return 'Total Actions (All)';
-            return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-        };
-
-        // --- API & DATA LOGIC ---
         async function login() {
-            if (!fbSdkLoaded) {
-                alert("Facebook SDK is still loading.");
-                return;
-            }
-
-            const customAppId = document.getElementById('meta-app-id').value.trim();
-            if (!customAppId) {
-                alert("Please enter a valid Meta App ID to proceed.");
-                return;
-            }
-
-            try {
-                FB.init({
-                    appId      : customAppId,
-                    cookie     : true,
-                    xfbml      : true,
-                    version    : API_VERSION
-                });
-            } catch (e) {
-                console.error("FB Init error:", e);
-            }
-
+            if (!fbSdkLoaded) return;
             FB.login((response) => {
                 if (response.authResponse) {
                     userAccessToken = response.authResponse.accessToken;
@@ -333,27 +212,16 @@
             try {
                 const response = await fetch(`https://graph.facebook.com/${API_VERSION}/me/adaccounts?fields=name,account_id,currency&access_token=${userAccessToken}`);
                 const data = await response.json();
-                
                 if (data.error) throw new Error(data.error.message);
-                
                 adAccounts = data.data;
                 const selector = document.getElementById('account-selector');
                 selector.innerHTML = adAccounts.map(acc => `<option value="${acc.id}" data-currency="${acc.currency}">${acc.name}</option>`).join('');
-                
-                if (adAccounts.length > 0) {
-                    accountCurrency = adAccounts[0].currency;
-                }
-
+                if (adAccounts.length > 0) accountCurrency = adAccounts[0].currency;
                 document.getElementById('auth-section').classList.add('d-none');
                 document.getElementById('dashboard-section').classList.remove('d-none');
                 document.getElementById('user-info').classList.remove('d-none');
                 setDefaultDates();
-            } catch (err) {
-                console.error(err);
-                alert("Error initializing dashboard: " + err.message);
-            } finally {
-                toggleLoader(false);
-            }
+            } catch (err) { alert(err.message); } finally { toggleLoader(false); }
         }
 
         async function fetchReport() {
@@ -361,247 +229,76 @@
             const accountId = selector.value;
             const start = document.getElementById('date-start').value;
             const end = document.getElementById('date-end').value;
-
             accountCurrency = selector.options[selector.selectedIndex].dataset.currency || "USD";
-
-            if (!accountId || !start || !end) return alert("Please select all fields.");
-
             toggleLoader(true, "Pulling Campaign Insights...");
-            
             try {
                 const fields = 'ad_name,objective,adset_name,date_start,actions,spend,reach,frequency,impressions';
                 const timeRange = JSON.stringify({ "since": start, "until": end });
                 const url = `https://graph.facebook.com/${API_VERSION}/${accountId}/insights?level=ad&fields=${fields}&time_increment=1&time_range=${encodeURIComponent(timeRange)}&limit=5000&access_token=${userAccessToken}`;
-                
                 const response = await fetch(url);
                 const result = await response.json();
-                
-                if (result.error) {
-                    console.error("Meta API Error:", result.error);
-                    throw new Error(result.error.message || "Failed to fetch data from Meta.");
-                }
-
+                if (result.error) throw new Error(result.error.message);
                 processData(result.data);
                 updateMetricSelector();
                 renderTableUI();
-            } catch (err) {
-                console.error("Fetch Error:", err);
-                alert("API Error: " + err.message);
-            } finally {
-                toggleLoader(false);
-            }
+            } catch (err) { alert(err.message); } finally { toggleLoader(false); }
         }
 
         function processData(rawData) {
-            adsDataMap = {};
-            const dateSet = new Set();
-            availableActionTypes = new Set();
-
+            adsDataMap = {}; const dateSet = new Set(); availableActionTypes = new Set();
             if (!rawData) return;
-
             rawData.forEach(item => {
-                const adName = item.ad_name;
-                const date = item.date_start;
-                const objective = item.objective || 'N/A';
-                const audience = item.adset_name || 'N/A';
+                const adName = item.ad_name, date = item.date_start;
                 dateSet.add(date);
-
-                if (!adsDataMap[adName]) {
-                    adsDataMap[adName] = { 
-                        objective: objective.replace(/_/g, ' ').toLowerCase(), 
-                        audience: audience,
-                        daily: {} 
-                    };
-                }
-
+                if (!adsDataMap[adName]) adsDataMap[adName] = { objective: (item.objective || 'N/A').replace(/_/g, ' ').toLowerCase(), audience: item.adset_name || 'N/A', daily: {} };
                 const actionsMap = {};
-                if (item.actions) {
-                    item.actions.forEach(act => {
-                        actionsMap[act.action_type] = parseInt(act.value || 0);
-                        availableActionTypes.add(act.action_type);
-                    });
-                }
-
-                const spend = parseFloat(item.spend) || 0;
-                const reach = parseInt(item.reach) || 0;
-                const frequency = parseFloat(item.frequency) || 0;
-                const impressions = parseInt(item.impressions) || 0;
-
-                adsDataMap[adName].daily[date] = { actionsMap, spend, reach, frequency, impressions };
+                if (item.actions) item.actions.forEach(act => { actionsMap[act.action_type] = parseInt(act.value || 0); availableActionTypes.add(act.action_type); });
+                adsDataMap[adName].daily[date] = { actionsMap, spend: parseFloat(item.spend) || 0, reach: parseInt(item.reach) || 0, frequency: parseFloat(item.frequency) || 0, impressions: parseInt(item.impressions) || 0 };
             });
-
             sortedDates = Array.from(dateSet).sort();
         }
 
         function updateMetricSelector() {
             const selector = document.getElementById('metric-selector');
-            const currentVal = selector.value;
-            
             let optionsHtml = '<option value="all">Total Actions (All)</option>';
-            const sortedTypes = Array.from(availableActionTypes).sort();
-            
-            sortedTypes.forEach(type => {
-                optionsHtml += `<option value="${type}">${formatActionLabel(type)}</option>`;
-            });
-            
+            Array.from(availableActionTypes).sort().forEach(type => optionsHtml += `<option value="${type}">${type.replace(/_/g, ' ')}</option>`);
             selector.innerHTML = optionsHtml;
-            if (availableActionTypes.has(currentVal) || currentVal === 'all') {
-                selector.value = currentVal;
-            } else {
-                selector.value = 'all';
-                selectedMetric = 'all';
-            }
-        }
-
-        function togglePin(adName) {
-            if (pinnedAds.has(adName)) pinnedAds.delete(adName);
-            else pinnedAds.add(adName);
-            renderTableUI();
-        }
-
-        function handleSearchInput(e) {
-            currentFilter = e.target.value;
-            renderTableUI(true); 
         }
 
         function renderTableUI(fromSearch = false) {
             const wrapper = document.getElementById('table-wrapper');
-            if (Object.keys(adsDataMap).length === 0) {
-                wrapper.classList.add('d-none');
-                return;
-            }
+            if (Object.keys(adsDataMap).length === 0) return;
             wrapper.classList.remove('d-none');
             document.getElementById('empty-state').classList.add('d-none');
-
-            let headHtml = `<tr>
-                <th class="ad-name-col">
-                    <div class="ad-name-header">
-                        <span>Ads Name</span>
-                        <div class="search-container">
-                            <i class="bi bi-search"></i>
-                            <input type="text" id="ad-search" class="form-control form-control-sm" placeholder="Search Ads..." value="${currentFilter}">
-                        </div>
-                    </div>
-                </th>`;
-            sortedDates.forEach(d => {
-                const display = new Date(d).toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
-                headHtml += `<th class="text-center">${display}</th>`;
-            });
+            let headHtml = `<tr><th class="ad-name-col"><div class="ad-name-header"><span>Ads Name</span><div class="search-container"><i class="bi bi-search"></i><input type="text" id="ad-search" class="form-control form-control-sm" placeholder="Search..." value="${currentFilter}"></div></div></th>`;
+            sortedDates.forEach(d => headHtml += `<th class="text-center">${new Date(d).toLocaleDateString('en-US', { month: 'short', day: '2-digit' })}</th>`);
             headHtml += `<th class="text-center total-col">Total / Avg</th></tr>`;
             document.getElementById('table-head').innerHTML = headHtml;
-
-            const searchInput = document.getElementById('ad-search');
-            if (searchInput) {
-                searchInput.addEventListener('input', handleSearchInput);
-                if (fromSearch) {
-                    searchInput.focus();
-                    const val = searchInput.value;
-                    searchInput.value = '';
-                    searchInput.value = val;
-                }
-            }
-
-            const allAdNames = Object.keys(adsDataMap)
-                .filter(name => name.toLowerCase().includes(currentFilter.toLowerCase()))
-                .sort((a, b) => {
-                    if (pinnedAds.has(a) && !pinnedAds.has(b)) return -1;
-                    if (!pinnedAds.has(a) && pinnedAds.has(b)) return 1;
-                    return a.localeCompare(b);
-                });
-
+            document.getElementById('ad-search').addEventListener('input', (e) => { currentFilter = e.target.value; renderTableUI(true); });
+            if (fromSearch) document.getElementById('ad-search').focus();
+            const names = Object.keys(adsDataMap).filter(n => n.toLowerCase().includes(currentFilter.toLowerCase())).sort((a,b) => (pinnedAds.has(a) ? -1 : 1));
             let bodyHtml = '';
-            allAdNames.forEach(adName => {
-                const isPinned = pinnedAds.has(adName);
-                const adInfo = adsDataMap[adName];
-                let rangeRes = 0;
-                let rangeSpend = 0;
-                let rangeReach = 0;
-                let rangeImpressions = 0;
-
-                bodyHtml += `<tr class="${isPinned ? 'pinned-row' : ''}">
-                    <td class="ad-name-col fw-bold">
-                        <div class="ad-row-content">
-                            <div class="ad-info-main">
-                                <span>${adName}</span>
-                                <div class="ad-meta-subtitle text-capitalize">
-                                    ${adInfo.objective} • ${adInfo.audience}
-                                </div>
-                            </div>
-                            <i class="bi ${isPinned ? 'bi-pin-angle-fill active' : 'bi-pin-angle'} pin-btn ms-2" onclick="togglePin('${adName.replace(/'/g, "\\'")}')"></i>
-                        </div>
-                    </td>`;
-                
+            names.forEach(adName => {
+                const isPinned = pinnedAds.has(adName); const info = adsDataMap[adName];
+                let rRes = 0, rSpend = 0, rReach = 0, rImps = 0;
+                bodyHtml += `<tr class="${isPinned ? 'pinned-row' : ''}"><td class="ad-name-col fw-bold"><div class="ad-row-content"><div class="ad-info-main"><span>${adName}</span><div class="ad-meta-subtitle text-capitalize">${info.objective} • ${info.audience}</div></div><i class="bi bi-pin-angle${isPinned ? '-fill active' : ''} pin-btn ms-2" onclick="togglePin('${adName.replace(/'/g, "\\'")}')"></i></div></td>`;
                 sortedDates.forEach(date => {
-                    const daily = adInfo.daily[date];
-                    let resCount = 0;
-                    let spend = 0;
-                    let reach = 0;
-                    let freq = 0;
-                    let imps = 0;
-
-                    if (daily) {
-                        spend = daily.spend;
-                        reach = daily.reach;
-                        freq = daily.frequency;
-                        imps = daily.impressions;
-                        if (selectedMetric === 'all') {
-                            resCount = Object.values(daily.actionsMap).reduce((a, b) => a + b, 0);
-                        } else {
-                            resCount = daily.actionsMap[selectedMetric] || 0;
-                        }
-                    }
-
-                    rangeRes += resCount;
-                    rangeSpend += spend;
-                    rangeReach += reach;
-                    rangeImpressions += imps;
-
-                    const cpr = resCount > 0 ? (spend / resCount) : 0;
-
-                    bodyHtml += `
-                        <td class="text-center metric-cell border-start">
-                            <div class="d-flex flex-column">
-                                ${showReachFreq ? `<span class="reach-freq-value mb-1">${reach.toLocaleString()} (${freq.toFixed(2)})</span>` : ''}
-                                <span class="res-value">${resCount || '-'}</span>
-                                <span class="cpr-value">${resCount > 0 ? formatCurrency(cpr) : '-'}</span>
-                            </div>
-                        </td>`;
+                    const daily = info.daily[date] || { spend: 0, reach: 0, frequency: 0, impressions: 0, actionsMap: {} };
+                    const resCount = selectedMetric === 'all' ? Object.values(daily.actionsMap).reduce((a,b) => a+b, 0) : (daily.actionsMap[selectedMetric] || 0);
+                    rRes += resCount; rSpend += daily.spend; rReach += daily.reach; rImps += daily.impressions;
+                    bodyHtml += `<td class="text-center metric-cell border-start"><div class="d-flex flex-column">${showReachFreq ? `<span class="reach-freq-value mb-1">${daily.reach.toLocaleString()} (${daily.frequency.toFixed(2)})</span>` : ''}<span class="res-value">${resCount || '-'}</span><span class="cpr-value">${resCount > 0 ? formatCurrency(daily.spend/resCount) : '-'}</span></div></td>`;
                 });
-
-                const rangeAvgCpr = rangeRes > 0 ? rangeSpend / rangeRes : 0;
-                const rangeAvgFreq = rangeReach > 0 ? rangeImpressions / rangeReach : 0;
-
-                bodyHtml += `
-                    <td class="text-center metric-cell total-col">
-                        <div class="d-flex flex-column">
-                            ${showReachFreq ? `<span class="reach-freq-value mb-1 text-dark">${rangeReach.toLocaleString()} (${rangeAvgFreq.toFixed(2)})</span>` : ''}
-                            <span class="res-value text-dark">${rangeRes || '-'}</span>
-                            <span class="cpr-value text-dark">${rangeRes > 0 ? formatCurrency(rangeAvgCpr) : '-'}</span>
-                        </div>
-                    </td>`;
-
-                bodyHtml += `</tr>`;
+                bodyHtml += `<td class="text-center metric-cell total-col"><div class="d-flex flex-column">${showReachFreq ? `<span class="reach-freq-value mb-1">${rReach.toLocaleString()} (${(rImps/(rReach||1)).toFixed(2)})</span>` : ''}<span class="res-value text-dark">${rRes || '-'}</span><span class="cpr-value text-dark">${rRes > 0 ? formatCurrency(rSpend/rRes) : '-'}</span></div></td></tr>`;
             });
             document.getElementById('table-body').innerHTML = bodyHtml;
         }
 
-        function logout() {
-            if (window.FB) FB.logout(() => location.reload());
-            else location.reload();
-        }
-
-        // --- LISTENERS ---
+        function togglePin(name) { pinnedAds.has(name) ? pinnedAds.delete(name) : pinnedAds.add(name); renderTableUI(); }
+        function logout() { if (window.FB) FB.logout(() => location.reload()); else location.reload(); }
         document.getElementById('btn-login').addEventListener('click', login);
         document.getElementById('btn-fetch').addEventListener('click', fetchReport);
-        document.getElementById('metric-selector').addEventListener('change', (e) => {
-            selectedMetric = e.target.value;
-            renderTableUI();
-        });
-        document.getElementById('toggle-reach-freq').addEventListener('change', (e) => {
-            showReachFreq = e.target.checked;
-            renderTableUI();
-        });
-
+        document.getElementById('metric-selector').addEventListener('change', (e) => { selectedMetric = e.target.value; renderTableUI(); });
+        document.getElementById('toggle-reach-freq').addEventListener('change', (e) => { showReachFreq = e.target.checked; renderTableUI(); });
     </script>
 </body>
 </html>
