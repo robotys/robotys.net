@@ -19,7 +19,7 @@
         .cpr-value { font-size: 0.9rem; font-weight: 600; color: #198754; }
         
         .ad-name-col { 
-            min-width: 280px; 
+            min-width: 320px; 
             background: #fff; 
             position: sticky; 
             left: 0; 
@@ -35,15 +35,22 @@
 
         .ad-row-content {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
             width: 100%;
         }
 
-        .meta-col {
-            min-width: 150px;
-            font-size: 0.85rem;
+        .ad-info-main {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .ad-meta-subtitle {
+            font-size: 0.7rem;
             color: #65676b;
+            font-weight: normal;
+            margin-top: 4px;
         }
         
         .total-col {
@@ -53,7 +60,7 @@
         }
 
         .pinned-row { background-color: #f0f7ff !important; border-bottom: 2px solid #0d6efd !important; }
-        .pin-btn { color: #ccc; cursor: pointer; transition: color 0.2s; font-size: 1.1rem; }
+        .pin-btn { color: #ccc; cursor: pointer; transition: color 0.2s; font-size: 1.1rem; margin-top: -2px; }
         .pin-btn.active { color: #0d6efd; }
         .pin-btn:hover { color: #0d6efd; }
 
@@ -270,11 +277,10 @@
             toggleLoader(true, "Pulling Campaign Insights...");
             
             try {
-                // Fixed: campaign and adset field expansions are not valid in insights fields parameter.
-                // Using valid top-level insights fields: objective and adset_name.
                 const fields = 'ad_name,objective,adset_name,date_start,actions,spend';
                 const timeRange = JSON.stringify({ "since": start, "until": end });
-                const url = `https://graph.facebook.com/${API_VERSION}/${accountId}/insights?level=ad&fields=${fields}&time_increment=1&time_range=${encodeURIComponent(timeRange)}&access_token=${userAccessToken}`;
+                // Added limit=5000 to ensure we get all records for the requested date range
+                const url = `https://graph.facebook.com/${API_VERSION}/${accountId}/insights?level=ad&fields=${fields}&time_increment=1&time_range=${encodeURIComponent(timeRange)}&limit=5000&access_token=${userAccessToken}`;
                 
                 const response = await fetch(url);
                 const result = await response.json();
@@ -303,7 +309,6 @@
             rawData.forEach(item => {
                 const adName = item.ad_name;
                 const date = item.date_start;
-                // Updated to read directly from top-level insight fields
                 const objective = item.objective || 'N/A';
                 const audience = item.adset_name || 'N/A';
                 dateSet.add(date);
@@ -346,7 +351,7 @@
             wrapper.classList.remove('d-none');
             document.getElementById('empty-state').classList.add('d-none');
 
-            // Header
+            // Header - Columns "Objective" and "Audience" removed
             let headHtml = `<tr>
                 <th class="ad-name-col">
                     <div class="ad-name-header">
@@ -356,9 +361,7 @@
                             <input type="text" id="ad-search" class="form-control form-control-sm" placeholder="Search Ads..." value="${currentFilter}">
                         </div>
                     </div>
-                </th>
-                <th class="meta-col">Objective</th>
-                <th class="meta-col">Audience</th>`;
+                </th>`;
             sortedDates.forEach(d => {
                 const display = new Date(d).toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
                 headHtml += `<th class="text-center">${display}</th>`;
@@ -393,15 +396,19 @@
                 let totalRes = 0;
                 let totalSpend = 0;
 
+                // Sub-labels moved into the Ads Name column
                 bodyHtml += `<tr class="${isPinned ? 'pinned-row' : ''}">
                     <td class="ad-name-col fw-bold">
                         <div class="ad-row-content">
-                            <span>${adName}</span>
+                            <div class="ad-info-main">
+                                <span>${adName}</span>
+                                <div class="ad-meta-subtitle text-capitalize">
+                                    ${adInfo.objective} • ${adInfo.audience}
+                                </div>
+                            </div>
                             <i class="bi ${isPinned ? 'bi-pin-angle-fill active' : 'bi-pin-angle'} pin-btn ms-2" onclick="togglePin('${adName.replace(/'/g, "\\'")}')"></i>
                         </div>
-                    </td>
-                    <td class="meta-col text-capitalize">${adInfo.objective}</td>
-                    <td class="meta-col">${adInfo.audience}</td>`;
+                    </td>`;
                 
                 sortedDates.forEach(date => {
                     const data = adInfo.daily[date] || { res: '-', cpr: 0, spend: 0 };
