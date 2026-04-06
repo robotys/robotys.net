@@ -312,5 +312,14 @@
         document.getElementById('metric-selector').addEventListener('change', (e) => { selectedMetric = e.target.value; renderTableUI(); });
         document.getElementById('toggle-reach-freq').addEventListener('change', (e) => { showReachFreq = e.target.checked; renderTableUI(); });
     </script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1CJP2KHHH7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-1CJP2KHHH7');
+    </script>
 </body>
 </html>
